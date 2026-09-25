@@ -89,7 +89,7 @@ The `ElevenlabsClient` HTTP client is created via `HttpServiceProxyFactory` on t
 
 ## File Storage
 
-Uploaded files are saved to disk in a directory configured via `AppProps` (`fileStorage.uploadDir`). The directory is mapped as a resource handler under `/files/**`, allowing files to be served directly by the application.
+Generated jingles go to Supabase Storage when `integration.supabase.*` is configured (see Configuration). Otherwise, uploaded files are saved to disk in a directory configured via `AppProps` (`fileStorage.uploadDir`). The directory is mapped as a resource handler under `/files/**`, allowing files to be served directly by the application.
 
 ---
 
@@ -122,6 +122,11 @@ Core settings are defined in `application.properties` or via environment variabl
 | `app.file-storage.upload-dir` | Directory for uploaded files |
 | `integration.elevenlabs.base-url` | ElevenLabs base URL |
 | `integration.elevenlabs.api-key` | ElevenLabs API key |
+| `integration.supabase.url` | Optional. Supabase project URL, e.g. `https://agnafyaipjhixqkijmwy.supabase.co` |
+| `integration.supabase.secret-key` | Optional. Supabase secret key (server only, never in the browser) |
+| `integration.supabase.jingle-bucket` | Optional. Public bucket for generated jingles, defaults to `jingles` |
+
+When the Supabase URL and secret key are set, new jingle recordings are uploaded to Supabase Storage and played from there. When they are missing, the app keeps saving files to `app.file-storage.upload-dir` as before. Jingles created earlier keep their old URLs and continue to work.
 
 ---
 
