@@ -10,10 +10,13 @@ import java.util.TimeZone;
 @EnableScheduling
 public class Application {
 
-	private static final String APP_TIME_ZONE = "Asia/Almaty";
+	// Jingle start/end dates are wall-clock times, so they are read in this zone.
+	// Override with the APP_TIME_ZONE environment variable.
+	private static final String DEFAULT_TIME_ZONE = "Asia/Singapore";
 
 	static void main(String[] args) {
-		TimeZone.setDefault(TimeZone.getTimeZone(APP_TIME_ZONE));
+		var zone = System.getenv().getOrDefault("APP_TIME_ZONE", DEFAULT_TIME_ZONE);
+		TimeZone.setDefault(TimeZone.getTimeZone(zone));
 		SpringApplication.run(Application.class, args);
 	}
 
