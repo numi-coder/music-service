@@ -41,9 +41,11 @@ public class Organization extends UpdateEntity {
     @Enumerated(EnumType.STRING)
     private List<CurrentFeel> currentFeel = new ArrayList<>();
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.ARRAY)
     @Column(length = 128, nullable = false)
-    private MusicMood musicMood;
+    private List<MusicMood> musicMood = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     @Column(length = 128, nullable = false)
@@ -63,6 +65,16 @@ public class Organization extends UpdateEntity {
 
     public boolean hasEnhancedDashboardView() {
         return !stores.isEmpty() && !jingles.isEmpty();
+    }
+
+    public final String getMoodNames() {
+        StringBuilder sb = new StringBuilder();
+        for (MusicMood mood : musicMood) {
+            sb.append(mood.getName());
+            sb.append(" + ");
+        }
+        sb.delete(sb.length() - 2, sb.length());
+        return sb.toString();
     }
 
 }

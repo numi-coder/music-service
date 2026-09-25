@@ -4,9 +4,8 @@ import jakarta.persistence.*;
 import kz.genvibe.media_management.model.entity.base.CreateEntity;
 import kz.genvibe.media_management.model.enums.JingleSlotStatus;
 import lombok.*;
-import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,8 +19,7 @@ import java.util.Set;
 public class JingleSlot extends CreateEntity {
 
     @Column(nullable = false)
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime playTime;
+    private Instant playTime;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "jingle_id", nullable = false)

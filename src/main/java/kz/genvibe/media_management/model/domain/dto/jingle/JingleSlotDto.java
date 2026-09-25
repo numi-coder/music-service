@@ -1,9 +1,9 @@
 package kz.genvibe.media_management.model.domain.dto.jingle;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public record JingleSlotDto(
     long id,
-    LocalDateTime playTime,
+    Instant playTime,
     String fileUrl
 ) { }

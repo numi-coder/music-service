@@ -12,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -35,7 +37,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     @Override
     @Transactional
-    public void saveMusicTypes(AppUser appUser, MusicAtmosphere atmosphere, MusicMood mood) {
+    public void saveMusicTypes(AppUser appUser, MusicAtmosphere atmosphere, List<MusicMood> mood) {
         var organization = appUser.getOrganization();
 
         organization.setMusicAtmosphere(atmosphere);

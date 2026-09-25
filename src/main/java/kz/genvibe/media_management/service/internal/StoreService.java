@@ -17,7 +17,7 @@ public interface StoreService {
 
     // Modification methods
     void addStore(AppUser appUser, StoreCreateDto dto);
-    void activateStore(long id, AppUser appUser);
+    String activateStore(long id, AppUser appUser);
     String regenerateMusicAccessLink(long id, AppUser appUser);
 
     // Verification methods

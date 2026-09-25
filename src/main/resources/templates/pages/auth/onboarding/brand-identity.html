@@ -12,7 +12,7 @@
         <form th:action="@{/onboarding/step-2}" method="post" id="brandForm">
             <div class="chips">
                 <label th:each="identity : ${brandIdentities}" class="chip">
-                    <input type="radio" name="atmosphere" th:value="${identity}">
+                    <input type="radio" name="atmosphere" th:value="${identity}" required>
                     <span th:text="${identity.name}">Warm & Welcoming</span>
                 </label>
             </div>

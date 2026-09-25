@@ -19,9 +19,13 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -63,9 +67,11 @@ public class JingleServiceImpl implements JingleService {
     @Override
     @Transactional
     public void deleteJingleById(long id, AppUser appUser) {
-        var jingle = jingleRepository.findJingleByIdAndOrganization(id, appUser.getOrganization())
-                .orElseThrow(() -> new EntityNotFoundException("Jingle not found"));
-        jingleRepository.deleteByIdAndOrg(id, appUser.getOrganization());
+        jingleRepository.findJingleByIdAndOrganization(id, appUser.getOrganization())
+            .orElseThrow(() -> new EntityNotFoundException("Jingle not found"));
+        jingleSlotRepository.deleteByJingleId(id);
+        jingleRepository.deleteStoreLinks(id);
+        jingleRepository.hardDeleteById(id);
     }
 
     @Override
@@ -94,9 +100,15 @@ public class JingleServiceImpl implements JingleService {
 
         final var jingleSchedules = stores.stream()
             .map(Store::getJingleSchedule)
+            .filter(Objects::nonNull)
             .collect(Collectors.toSet());
 
-        generateSlotsForJingle(jingle, jingleSchedules);
+        var now = Instant.now();
+        var zone = ZoneId.systemDefault();
+
+        for (final var schedule : jingleSchedules) {
+            generateSlotsForJingleOnDay(jingle, schedule, LocalDate.now(zone), zone, now);
+        }
     }
 
     @Override
@@ -119,29 +131,71 @@ public class JingleServiceImpl implements JingleService {
         return jingleRepository.findJinglesByOrganizationAndRequestedToPauseIsTrue(appUser.getOrganization());
     }
 
-    private void generateSlotsForJingle(Jingle jingle, Set<JingleSchedule> schedules) {
-        var now = LocalDateTime.now().withSecond(0).withNano(0);
+    @Scheduled(cron = "0 0 * * * *")
+    @Transactional
+    public void generateDailySlots() {
+        var now = Instant.now();
+        var zone = ZoneId.systemDefault();
+        var today = LocalDate.now(zone);
+        var startOfDay = today.atStartOfDay();
+        var endOfDay = today.atTime(LocalTime.MAX);
 
-        if (now.isAfter(jingle.getEndDate()) || now.plusDays(1).isBefore(jingle.getStartDate())) {
+        var jingles = jingleRepository.findActiveAssignedJingles(startOfDay, endOfDay);
+
+        for (var jingle : jingles) {
+            for (var store : jingle.getStores()) {
+                var schedule = store.getJingleSchedule();
+                if (schedule != null) {
+                    generateSlotsForJingleOnDay(jingle, schedule, today, zone, now);
+                }
+            }
+        }
+
+        log.info("Daily slot generation finished for {} active jingle(s)", jingles.size());
+    }
+
+    private void generateSlotsForJingleOnDay(
+        Jingle jingle,
+        JingleSchedule schedule,
+        LocalDate day,
+        ZoneId zone,
+        Instant notBefore
+    ) {
+        var startOfDay = day.atStartOfDay();
+        var endOfDay = day.atTime(LocalTime.MAX);
+
+        if (jingle.getStartDate().isAfter(endOfDay) || jingle.getEndDate().isBefore(startOfDay)) {
             return;
         }
 
-        var minutesInterval = jingle.getRepeatingTime().getDuration().toMinutes();
-        var nextSlotTime = jingle.getStartDate().isAfter(now) ? jingle.getStartDate() : now;
-        var endOfDay = now.toLocalDate().atTime(LocalTime.MAX);
+        var interval = jingle.getRepeatingTime().getDuration().toMinutes();
 
-        for (final var schedule: schedules) {
-            while (nextSlotTime.isBefore(endOfDay) && nextSlotTime.isBefore(jingle.getEndDate())) {
-                var slot = JingleSlot.builder()
-                    .jingle(jingle)
-                    .jingleSchedule(schedule)
-                    .playTime(nextSlotTime)
-                    .status(JingleSlotStatus.PENDING)
-                    .build();
+        Set<Instant> existingTimes = schedule.getDailyJingleSlots().stream()
+            .filter(slot -> Objects.equals(slot.getJingle().getId(), jingle.getId()))
+            .map(JingleSlot::getPlayTime)
+            .collect(Collectors.toSet());
 
-                schedule.addSlot(slot);
-                nextSlotTime = nextSlotTime.plusMinutes(minutesInterval);
+        var slotTime = jingle.getStartDate();
+        if (slotTime.isBefore(startOfDay)) {
+            var steps = Duration.between(slotTime, startOfDay).toMinutes() / interval;
+            slotTime = slotTime.plusMinutes(steps * interval);
+            while (slotTime.isBefore(startOfDay)) {
+                slotTime = slotTime.plusMinutes(interval);
             }
+        }
+
+        for (; !slotTime.isAfter(endOfDay) && !slotTime.isAfter(jingle.getEndDate()); slotTime = slotTime.plusMinutes(interval)) {
+            var playInstant = slotTime.atZone(zone).toInstant();
+            if (playInstant.isBefore(notBefore) || existingTimes.contains(playInstant)) {
+                continue;
+            }
+
+            schedule.addSlot(JingleSlot.builder()
+                .jingle(jingle)
+                .jingleSchedule(schedule)
+                .playTime(playInstant)
+                .status(JingleSlotStatus.PENDING)
+                .build());
         }
     }
 
@@ -149,8 +203,8 @@ public class JingleServiceImpl implements JingleService {
     @Transactional
     public void checkAndBroadcastJingles() {
         log.info("Starting broadcast");
-        var now = LocalDateTime.now().withSecond(0).withNano(0);
-        var currentSlots = jingleSlotRepository.findJingleSlotsByPlayTimeAndStatusAndJingleRequestedToPauseIsFalse(
+        var now = Instant.now();
+        var currentSlots = jingleSlotRepository.findJingleSlotsByPlayTimeLessThanEqualAndStatusAndJingleRequestedToPauseIsFalse(
             now,
             JingleSlotStatus.PENDING
         );

@@ -30,33 +30,41 @@
                 </div>
                 <div class="chips">
                     <label th:each="type : ${musicMoods}" class="chip">
-                        <input type="radio" name="mood" th:value="${type}">
+                        <input type="checkbox" name="mood" th:value="${type}">
                         <span th:text="${type.name}">Music Type</span>
                     </label>
                 </div>
                 <div class="selected-info">
                     <p>Selected</p>
-                    <span id="selectedInfo" th:text="${organization.musicAtmosphere.name + ' / ' + organization.musicMood.name}"></span>
+                    <span id="selectedInfo" th:text="${organization.musicAtmosphere.name + ' / ' + organization.getMoodNames()}"></span>
                 </div>
             </div>
 
             <div class="music-container">
                 <h3>2-minute preview</h3>
                 <div th:each="music : ${musics}" class="music-card">
+
+                    <div class="music-icon">
+                        <img th:src="${music.iconLocation}" class="music-icon-img" alt="">
+                    </div>
+                    <div class="music-info">
+                        <h3 th:text="${music.atmosphere.name}">Style Name</h3>
+                        <p th:text="${music.getMoodNames()}"></p>
+                    </div>
+
+                    <div class="selected-badge">✓ Selected</div>
+
+                    <div class="waveform-placeholder">
+                        <canvas class="waveCanvas"></canvas>
+                    </div>
+
                     <button class="play-btn"
                             th:data-src="${music.fileUrl}"
                             onclick="toggleAudio(this)">
                         <span class="icon" th:replace="~{fragments/icons :: icon-start}"></span>
                         <span class="icon" th:replace="~{fragments/icons :: icon-pause}"></span>
                     </button>
-                    <div class="music-info">
-                        <h3 th:text="${music.atmosphere.name}">Style Name</h3>
-                        <p th:text="${music.mood.name}">Style description text goes here.</p>
-                    </div>
-                    <div class="selected-badge">✓ Selected</div>
-                    <div class="waveform-placeholder">
-                        <canvas class="waveCanvas"></canvas>
-                    </div>
+
                 </div>
             </div>
 
@@ -74,39 +82,47 @@
         const form = document.getElementById('musicForm');
         const saveButton = document.getElementById('saveButton');
 
-        form.addEventListener('change', () => {
-            const atmosphere = form.querySelector('input[name="atmosphere"]:checked');
-            const mood = form.querySelector('input[name="mood"]:checked');
-            saveButton.disabled = !(atmosphere && mood);
-        });
-    </script>
-    <script>
         function updateSelected() {
             const atmosphere = document.querySelector('input[name="atmosphere"]:checked');
-            const mood = document.querySelector('input[name="mood"]:checked');
 
-            const atmosphereName = atmosphere ? atmosphere.closest('.chip').querySelector('span').textContent : '—';
-            const moodName = mood ? mood.closest('.chip').querySelector('span').textContent : '—';
+            const moods = [...document.querySelectorAll('input[name="mood"]:checked')]
+                .map(m => m.closest('.chip').querySelector('span').textContent.trim());
 
-            document.getElementById('selectedInfo').textContent = atmosphereName + ' / ' + moodName;
+            const atmosphereName = atmosphere
+                ? atmosphere.closest('.chip').querySelector('span').textContent.trim()
+                : '—';
+
+            // document.getElementById('selectedInfo').textContent =
+            //     atmosphereName + ' / ' + (moods.length ? moods.join(', ') : '—');
+
             filterMusic();
+
+            saveButton.disabled = !(atmosphere && moods.length > 0);
         }
 
         function filterMusic() {
             const atmosphere = document.querySelector('input[name="atmosphere"]:checked');
-            const mood = document.querySelector('input[name="mood"]:checked');
+
+            const moods = [...document.querySelectorAll('input[name="mood"]:checked')]
+                .map(m => m.closest('.chip').querySelector('span').textContent.trim());
 
             document.querySelectorAll('.music-card').forEach(card => {
                 const cardAtmosphere = card.querySelector('.music-info h3').textContent.trim();
                 const cardMood = card.querySelector('.music-info p').textContent.trim();
-0
-                const atmosphereLabel = atmosphere ? atmosphere.closest('.chip').querySelector('span').textContent.trim() : null;
-                const moodLabel = mood ? mood.closest('.chip').querySelector('span').textContent.trim() : null;
 
-                const matchAtmosphere = !atmosphereLabel || cardAtmosphere === atmosphereLabel;
-                const matchMood = !moodLabel || cardMood === moodLabel;
+                const atmosphereLabel = atmosphere
+                    ? atmosphere.closest('.chip').querySelector('span').textContent.trim()
+                    : null;
 
-                card.style.display = matchAtmosphere && matchMood ? 'flex' : 'none';
+                const matchAtmosphere =
+                    !atmosphereLabel || cardAtmosphere === atmosphereLabel;
+
+                const matchMood =
+                    moods.length === 0 ||
+                    moods.some(mood => cardMood.includes(mood));
+
+                card.style.display =
+                    matchAtmosphere && matchMood ? 'flex' : 'none';
 
                 card.onclick = (e) => {
                     if (e.target.closest('.play-btn')) return;
@@ -116,36 +132,64 @@
                     });
 
                     card.classList.add('selected');
-                    document.getElementById('saveButton').disabled = false;
+                    saveButton.disabled = false;
                 };
             });
         }
 
-        document.querySelectorAll('input[name="atmosphere"], input[name="mood"]').forEach(input => {
-            input.addEventListener('change', updateSelected);
-        });
-
         document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('.chip input[type="radio"]').forEach(input => {
-                input.addEventListener('change', function() {
-                    document.querySelectorAll(`.chip input[name="${this.name}"]`).forEach(i => {
+
+            document.querySelectorAll('input[name="atmosphere"]').forEach(input => {
+                input.addEventListener('change', function () {
+                    document.querySelectorAll('input[name="atmosphere"]').forEach(i => {
                         i.closest('.chip').classList.remove('active');
                     });
+
                     this.closest('.chip').classList.add('active');
                     updateSelected();
                 });
             });
 
-            document.getElementById('saveButton').addEventListener('click', () => {
-                const atmosphere = document.querySelector('input[name="atmosphere"]:checked')?.value;
-                const mood = document.querySelector('input[name="mood"]:checked')?.value;
+            document.querySelectorAll('input[name="mood"]').forEach(input => {
+                input.addEventListener('change', function () {
+                    const checked = document.querySelectorAll('input[name="mood"]:checked');
 
-                if (!atmosphere || !mood) return;
+                    if (checked.length > 2) {
+                        this.checked = false;
+                        // Принудительно убираем класс, если он вдруг добавился
+                        this.closest('.chip').classList.remove('active');
+                        return;
+                    }
 
-                const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
-                const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
+                    // Обновляем класс для всех элементов, чтобы синхронизировать состояние
+                    document.querySelectorAll('input[name="mood"]').forEach(el => {
+                        el.closest('.chip').classList.toggle('active', el.checked);
+                    });
 
-                const params = new URLSearchParams({ atmosphere, mood });
+                    updateSelected();
+                });
+            });
+            saveButton.addEventListener('click', () => {
+                const atmosphere =
+                    document.querySelector('input[name="atmosphere"]:checked')?.value;
+
+                const moods = [...document.querySelectorAll('input[name="mood"]:checked')]
+                    .map(m => m.value);
+
+                if (!atmosphere || moods.length === 0) return;
+
+                const csrfToken =
+                    document.querySelector('meta[name="_csrf"]')?.content;
+
+                const csrfHeader =
+                    document.querySelector('meta[name="_csrf_header"]')?.content;
+
+                const params = new URLSearchParams();
+                params.append('atmosphere', atmosphere);
+
+                moods.forEach(mood => {
+                    params.append('moods', mood);
+                });
 
                 fetch('/api/music', {
                     method: 'POST',
@@ -156,10 +200,14 @@
                     body: params
                 })
                     .then(res => {
-                        if (res.ok || res.redirected) window.location.href = '/dashboard';
+                        if (res.ok || res.redirected) {
+                            window.location.href = '/dashboard';
+                        }
                     })
                     .catch(err => console.error('Save error:', err));
             });
+
+            updateSelected();
         });
     </script>
     <script>
@@ -268,16 +316,6 @@
     </script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('.chip input[type="radio"]').forEach(input => {
-                input.addEventListener('change', function() {
-                    document.querySelectorAll(`.chip input[name="${this.name}"]`).forEach(i => {
-                        i.closest('.chip').classList.remove('active');
-                    });
-                    this.closest('.chip').classList.add('active');
-                    updateSelected();
-                });
-            });
-
             document.querySelectorAll('.play-btn').forEach(btn => {
                 const svgs = btn.querySelectorAll('svg');
                 if (svgs.length >= 2) svgs[1].style.display = 'none';

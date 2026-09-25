@@ -65,7 +65,7 @@ public class ElevenlabsIntegrationServiceTest {
         final var resultUrl = elevenlabsIntegrationService.getSpeechFileUrl(text, voiceId);
 
         assertNotNull(resultUrl);
-        assertTrue(resultUrl.contains("build/test-uploads"));
+        assertTrue(resultUrl.contains("/files/"));
         assertTrue(resultUrl.endsWith(".mp3"));
 
         final var fileName = resultUrl.substring(resultUrl.lastIndexOf("/") + 1);

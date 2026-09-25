@@ -10,11 +10,14 @@
         <form method="post" th:action="@{/auth/login}">
 
             <div class="form-group">
-                <input type="email" name="email" placeholder="Email" required>
+                <input type="email" name="email" placeholder="Email" required maxlength="254">
             </div>
 
             <div class="password-wrapper">
-                <input type="password" name="password" placeholder="Password" required>
+                <input type="password" name="password" placeholder="Password" required
+                       minlength="6"
+                       pattern=".*[0-9].*"
+                       title="At least 6 characters and contain at least one digit">
                 <span class="toggle-password"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path fill-rule="evenodd" clip-rule="evenodd" d="M12.0068 4.22217C15.709 4.22217 19.0121 6.75332 21.1699 8.93213C22.3974 10.1716 23.0116 10.791 23.0117 12.0249C23.0117 13.2591 22.3976 13.8791 21.1699 15.1187C19.012 17.2974 15.709 19.8276 12.0068 19.8276C8.30482 19.8274 5.00153 17.2974 2.84375 15.1187C1.61632 13.8793 1.00293 13.259 1.00293 12.0249C1.00307 10.7912 1.6165 10.1713 2.84375 8.93213C5.00153 6.7534 8.30482 4.22238 12.0068 4.22217ZM12 7.49951C9.51486 7.49951 7.50023 9.51442 7.5 11.9995C7.5 14.4848 9.51472 16.4995 12 16.4995C14.4853 16.4995 16.5 14.4848 16.5 11.9995C16.4998 9.51442 14.4851 7.49951 12 7.49951Z" fill="black"/>
                 </svg></span>

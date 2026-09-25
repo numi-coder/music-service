@@ -18,7 +18,10 @@
             <div class="form-group">
                 <input type="text"
                        th:field="*{companyName}"
-                       placeholder="Company name">
+                       placeholder="Company name"
+                       required
+                       minlength="2"
+                       maxlength="160">
 
                 <div class="error-message"
                      th:if="${#fields.hasErrors('companyName')}"
@@ -124,6 +127,37 @@
                         wrapper.classList.remove('active');
                     }
                 });
+            });
+
+            // Validate the custom dropdowns (businessType / musicProvider) on submit.
+            // `required` is ignored on hidden inputs, so enforce @NotNull here.
+            const form = document.querySelector('form');
+            form.addEventListener('submit', e => {
+                let firstInvalid = null;
+
+                form.querySelectorAll('.custom-select-wrapper input[type="hidden"]').forEach(input => {
+                    const group = input.closest('.form-group');
+                    let error = group.querySelector('.error-message');
+
+                    if (!input.value) {
+                        if (!error) {
+                            error = document.createElement('div');
+                            error.className = 'error-message';
+                            group.appendChild(error);
+                        }
+                        error.textContent = 'Please make a selection';
+                        error.style.display = 'block';
+                        if (!firstInvalid) firstInvalid = input.closest('.custom-select-wrapper');
+                    } else if (error) {
+                        error.textContent = '';
+                        error.style.display = 'none';
+                    }
+                });
+
+                if (firstInvalid) {
+                    e.preventDefault();
+                    firstInvalid.scrollIntoView({behavior: 'smooth', block: 'center'});
+                }
             });
         });
     </script>

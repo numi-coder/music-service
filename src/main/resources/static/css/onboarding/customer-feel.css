@@ -81,3 +81,11 @@ button:last-child {
 .check-icon {
     font-size: 14px;
 }
+
+.feel-card:has(input:checked) .card-desc { color: #ccc; }
+.feel-card:has(input:checked) .check-icon { display: block; }
+.feel-card:has(input:checked) .check-icon svg path { fill: #ffffff; }
+.feel-card:has(input:checked) {
+    background: #000;
+    color: #fff;
+}

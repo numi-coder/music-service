@@ -7,7 +7,7 @@ import lombok.Setter;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @MappedSuperclass
 @Getter
@@ -16,7 +16,7 @@ public abstract class CreateEntity extends BaseEntity {
 
     @Column(updatable = false, nullable = false)
     @CreatedDate
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @Column(updatable = false, nullable = false)
     @CreatedBy

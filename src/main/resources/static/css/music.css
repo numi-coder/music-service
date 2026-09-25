@@ -333,3 +333,28 @@
 .music-card.selected .selected-badge {
     display: inline-flex;
 }
+
+.music-icon {
+    width: auto;
+    height: auto;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.music-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 250px;
+}
+
+.waveform-placeholder {
+    flex: 1;
+    max-width: none;
+}
+
+.play-btn {
+    margin-left: auto;
+}

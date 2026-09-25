@@ -11,7 +11,7 @@
     </div>
         <form th:action="@{/auth/send-email}" method="post">
             <div class="form-group">
-                <input type="email" name="email" placeholder="Email" required>
+                <input type="email" name="email" placeholder="Email" required maxlength="254">
             </div>
             <hr>
             <button class="btn-primary" type="submit">Continue</button>

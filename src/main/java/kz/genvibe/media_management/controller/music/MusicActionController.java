@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.List;
+
 @Controller
 @RequestMapping("/api/music")
 @RequiredArgsConstructor
@@ -25,11 +27,11 @@ public class MusicActionController {
     @ResponseBody
     public String saveMusicAtmosphereAndMood(
         @RequestParam @NotNull MusicAtmosphere atmosphere,
-        @RequestParam @NotNull MusicMood mood,
+        @RequestParam @NotNull List<MusicMood> moods,
         @CurrentUser AppUser appUser,
         RedirectAttributes redirectAttributes
     ) {
-        organizationService.saveMusicTypes(appUser, atmosphere, mood);
+        organizationService.saveMusicTypes(appUser, atmosphere, moods);
         redirectAttributes.addFlashAttribute("toast", "Music type successfully saved for your company");
         return "redirect:/dashboard";
     }

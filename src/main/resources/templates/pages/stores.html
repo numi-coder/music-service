@@ -221,46 +221,36 @@
             document.getElementById("linkModalOverlay").style.display = "none";
         }
 
-        function activateStore(id, name) {
+        async function activateStore(id, name) {
             currentStoreId = id;
-
             const token = document.querySelector('meta[name="_csrf"]').content;
             const header = document.querySelector('meta[name="_csrf_header"]').content;
 
+            document.getElementById("storeLink").innerText = "Loading...";
             openLink(id, name, "Loading...");
-            markStoreAsActive(id, name);
 
-            fetch(`/api/stores/activate/${id}`, {
-                method: "POST",
-                headers: {
-                    [header]: token
-                }
-            })
-                .then(() => {
-                    return fetch(`/api/stores/regenerate-link/${id}`, {
-                        method: "POST",
-                        headers: {
-                            [header]: token
-                        }
-                    });
-                })
-                .then(res => res.text())
-                .then(link => {
-
-                    currentLink = link;
-
-                    document.getElementById("storeLink").innerText = link;
-
-                    updateStoreLink(id, name, link);
-
-                    showToast("Store activated!");
-                })
-                .catch(() => {
-                    document.getElementById("storeLink").innerText = "Error";
-                    showToast("Activation failed");
+            try {
+                // 1. Activate (response body is the music access link)
+                const actRes = await fetch(`/api/stores/activate/${id}`, {
+                    method: "POST",
+                    headers: { [header]: token }
                 });
+                if (!actRes.ok) throw new Error("Activation failed");
+
+                const link = await actRes.text();
+
+                // 2. Update UI
+                currentLink = link;
+                document.getElementById("storeLink").innerText = link;
+                markStoreAsActive(id);
+                updateStoreLink(id, name, link);
+                showToast("Store activated!");
+            } catch (error) {
+                console.error(error);
+                showToast("Error activating store");
+            }
         }
-        function markStoreAsActive(id, name) {
+        function markStoreAsActive(id) {
             const card = document.querySelector(`.store-card[data-id="${id}"]`);
 
             if (!card) return;
@@ -273,17 +263,18 @@
         }
         function updateStoreLink(id, name, link) {
             const card = document.querySelector(`.store-card[data-id="${id}"]`);
+            if (!card) return; // Silent fail if card not found
 
-            if (!card) return;
+            const container = card.querySelector(".store-title-row");
+            const oldBtn = container?.querySelector(".btn-link-store");
 
-            const actions = card.querySelector(".store-title-row");
-
-            actions.querySelector(".btn-link-store").outerHTML = `
-        <button class="btn-link-store"
-            onclick="openLink(${id}, '${name}', '${link}')">
-            View store
-        </button>
-    `;
+            if (oldBtn) {
+                const newBtn = document.createElement("button");
+                newBtn.className = "btn-link-store";
+                newBtn.innerText = "View store";
+                newBtn.onclick = () => openLink(id, name, link);
+                container.replaceChild(newBtn, oldBtn);
+            }
         }
         function showToast(message) {
             const toast = document.getElementById("toast");
@@ -311,43 +302,25 @@
             })
                 .then(res => res.text())
                 .then(link => {
+                    console.log("link:", link);
 
                     currentLink = link;
 
                     document.getElementById("storeLink").innerText = link;
 
+                    updateStoreLink(
+                        currentStoreId,
+                        document.getElementById("storeName").innerText,
+                        link
+                    );
+
                     showToast("Link regenerated");
                 })
-                .catch(() => {
+                .catch(err => {
+                    console.error(err);
                     showToast("Failed to regenerate link");
                 });
         }
-
-        function updateStoreCard(id, name, link) {
-            const cards = document.querySelectorAll(".store-card");
-
-            cards.forEach(card => {
-                const button = card.querySelector(".btn-activate");
-
-                if (button && button.getAttribute("onclick")?.includes(`activateStore(${id}`)) {
-
-                    const badge = card.querySelector(".status-badge");
-                    badge.innerText = "Active";
-                    badge.classList.remove("inactive");
-                    badge.classList.add("active");
-
-                    const actions = card.querySelector(".store-actions");
-
-                    actions.innerHTML = `
-                    <button class="btn-view"
-                        onclick="openLink(${id}, '${name}', '${link}')">
-                        View store
-                    </button>
-                `;
-                }
-            });
-        }
-
         function copyLink() {
             if (!currentLink) {
                 showToast("Link not ready");

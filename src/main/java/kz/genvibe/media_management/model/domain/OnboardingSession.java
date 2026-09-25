@@ -22,7 +22,7 @@ public class OnboardingSession implements Serializable {
     private MusicProvider musicProvider;
     private MusicAtmosphere musicAtmosphere;
     private List<CurrentFeel> currentFeels;
-    private MusicMood musicMood;
+    private List<MusicMood> musicMood;
     private PlaytimeWindow playtimeWindow;
 
     public Organization toOrganization() {

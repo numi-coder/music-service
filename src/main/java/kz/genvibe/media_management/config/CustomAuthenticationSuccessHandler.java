@@ -28,19 +28,16 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 
         var savedRequest = (SavedRequest) request.getSession().getAttribute("SPRING_SECURITY_SAVED_REQUEST");
 
-        if (savedRequest != null) {
-            super.onAuthenticationSuccess(request, response, authentication);
-            return;
-        }
-
         var authority = (UserRole) user.getAuthorities().stream()
             .findFirst()
             .orElseThrow();
 
-        switch (authority) {
-            case ROLE_USER -> response.sendRedirect("/stores");
-            case ROLE_ADMIN -> response.sendRedirect("/dashboard");
+        if (savedRequest != null && authority != UserRole.ROLE_ADMIN) {
+            super.onAuthenticationSuccess(request, response, authentication);
+            return;
         }
+
+        response.sendRedirect("/dashboard");
     }
 
 }

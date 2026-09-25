@@ -9,6 +9,6 @@ import java.util.List;
 
 public interface OrganizationService {
     Organization createOrganizationFromOnboarding(String email);
-    void saveMusicTypes(AppUser appUser, MusicAtmosphere atmosphere, MusicMood mood);
+    void saveMusicTypes(AppUser appUser, MusicAtmosphere atmosphere, List<MusicMood> mood);
     boolean existsByCompanyName(String companyName);
 }

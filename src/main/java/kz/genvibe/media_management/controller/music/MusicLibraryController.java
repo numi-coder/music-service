@@ -23,6 +23,7 @@ public class MusicLibraryController {
         model.addAttribute("musicAtmospheres", MusicAtmosphere.values());
         model.addAttribute("musicMoods", MusicMood.values());
         model.addAttribute("musics", musicService.getAllDistinctMusic());
+        model.addAttribute("moodNames", appUser.getOrganization().getMoodNames());
         model.addAttribute("organization", appUser.getOrganization());
         return "pages/music";
     }

@@ -152,7 +152,7 @@
                 </div>
                 <div class="form-group no-margin">
                     <p>Announcement Text</p>
-                    <textarea name="announcementText" maxlength="500"
+                    <textarea name="announcementText" maxlength="500" required
                               placeholder="e.g. Welcome to our store! Today's special offer: 20% off all items. Enjoy your visit."></textarea>
                     <div class="char-counter">0/500 characters</div>
                 </div>
@@ -1062,6 +1062,63 @@
                 btn.style.opacity = '1';
             }
         }
+    </script>
+    <script>
+        // Validate the date range on submit. startDate/endDate are hidden inputs set by the
+        // date picker, so HTML5 `required` does not apply — enforce @NotNull / @Future here.
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('jingleForm');
+            if (!form) return;
+
+            const startDate = document.getElementById('startDate');
+            const endDate = document.getElementById('endDate');
+            const picker = document.querySelector('.date-range-picker');
+
+            function showDateError(msg) {
+                let err = picker.querySelector('.date-error');
+                if (!err) {
+                    err = document.createElement('div');
+                    err.className = 'error-message date-error';
+                    picker.appendChild(err);
+                }
+                err.textContent = msg;
+                err.style.display = 'block';
+                picker.scrollIntoView({behavior: 'smooth', block: 'center'});
+            }
+
+            function clearDateError() {
+                const err = picker.querySelector('.date-error');
+                if (err) {
+                    err.textContent = '';
+                    err.style.display = 'none';
+                }
+            }
+
+            form.addEventListener('submit', (e) => {
+                clearDateError();
+
+                if (!startDate.value || !endDate.value) {
+                    e.preventDefault();
+                    showDateError('Please select a start and end date');
+                    return;
+                }
+
+                const start = new Date(startDate.value);
+                const end = new Date(endDate.value);
+                const now = new Date();
+
+                if (end <= start) {
+                    e.preventDefault();
+                    showDateError('End date must be after the start date');
+                    return;
+                }
+
+                if (end <= now) {
+                    e.preventDefault();
+                    showDateError('End date must be in the future');
+                }
+            });
+        });
     </script>
 </th:block>
 </html>

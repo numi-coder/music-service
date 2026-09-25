@@ -1,6 +1,5 @@
 package kz.genvibe.media_management.service.internal.impl;
 
-import jakarta.persistence.EntityNotFoundException;
 import kz.genvibe.media_management.model.entity.Music;
 import kz.genvibe.media_management.model.entity.Organization;
 import kz.genvibe.media_management.repository.MusicRepository;
@@ -17,6 +16,9 @@ import java.util.List;
 @Slf4j
 public class MusicServiceImpl implements MusicService {
 
+    private static final String MUSIC_PLACEHOLDER =
+        "https://agnafyaipjhixqkijmwy.supabase.co/storage/v1/object/public/music/Warm%20and%20welcoming%20+%20slow%20down%20and%20relax.mp3";
+
     private final MusicRepository musicRepository;
 
     @Override
@@ -28,12 +30,14 @@ public class MusicServiceImpl implements MusicService {
     @Override
     @Transactional(readOnly = true)
     public String getMusicPreviewUrl(Organization organization) {
-        var music = musicRepository.findTopByAtmosphereAndMood(
-            organization.getMusicAtmosphere(),
-            organization.getMusicMood()
-        ).orElseThrow(() -> new EntityNotFoundException("Cannot find music to play"));
+        var atmosphereStr = organization.getMusicAtmosphere().name();
+        var moodArray = organization.getMusicMood().stream()
+            .map(Enum::name)
+            .toArray(String[]::new);
 
-        return music.getFileUrl();
+        return musicRepository.findTopByAtmosphereAndMood(atmosphereStr, moodArray)
+            .map(Music::getFileUrl)
+            .orElse(MUSIC_PLACEHOLDER);
     }
 
 }

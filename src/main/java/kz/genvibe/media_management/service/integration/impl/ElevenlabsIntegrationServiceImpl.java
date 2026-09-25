@@ -41,7 +41,7 @@ public class ElevenlabsIntegrationServiceImpl implements ElevenlabsIntegrationSe
         Files.write(filePath, fileBytes);
 
         return ServletUriComponentsBuilder.fromCurrentContextPath()
-            .path(appProps.getFileStorage().uploadDir())
+            .path("files")
             .path("/")
             .path(fileName)
             .toUriString();

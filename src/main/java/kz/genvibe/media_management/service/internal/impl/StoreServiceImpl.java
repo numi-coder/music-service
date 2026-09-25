@@ -76,20 +76,22 @@ public class StoreServiceImpl implements StoreService {
 
     @Override
     @Transactional
-    public void activateStore(long id, AppUser appUser) {
+    public String activateStore(long id, AppUser appUser) {
         var store = storeRepository.findStoreByIdAndOrganization(id, appUser.getOrganization())
             .orElseThrow(() -> new EntityNotFoundException("Store not found"));
 
         var uuid = UUID.randomUUID();
+        var musicLink = generateMusicAccessLink(id, uuid);
 
         store.setActive(true);
         store.setMusicLinkUuid(uuid);
-        store.setMusicLink(generateMusicAccessLink(id, uuid));
+        store.setMusicLink(musicLink);
         store.setJingleSchedule(jingleScheduleRepository.save(new JingleSchedule(store)));
 
         authService.sendStoreEmailVerification(store);
 
         log.info("Activated store: {} with id: {}", store.getName(), id);
+        return musicLink;
     }
 
     @Override

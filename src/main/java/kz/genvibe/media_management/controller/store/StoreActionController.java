@@ -28,13 +28,13 @@ public class StoreActionController {
         return "redirect:/stores";
     }
 
+    @ResponseBody
     @PostMapping("/activate/{id}")
     public String activateStore(
         @PathVariable long id,
         @CurrentUser AppUser appUser
     ) {
-        storeService.activateStore(id, appUser);
-        return "redirect:/stores";
+        return storeService.activateStore(id, appUser);
     }
 
     @ResponseBody
