@@ -1,11 +1,8 @@
 package kz.genvibe.media_management.service.internal.impl;
 
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import kz.genvibe.media_management.exception.UserAlreadyExistsException;
 import kz.genvibe.media_management.model.domain.dto.user.AppUserUpdateDto;
-import kz.genvibe.media_management.model.domain.dto.user.PasswordSetupDto;
 import kz.genvibe.media_management.model.entity.AppUser;
 import kz.genvibe.media_management.model.entity.Organization;
 import kz.genvibe.media_management.repository.AppUserRepository;
@@ -26,19 +23,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public AppUser setupUserPassword(
-        PasswordSetupDto passwordSetupDto,
-        HttpServletRequest request,
-        HttpServletResponse response
-    ) {
-        var email = passwordSetupDto.email();
-        var appUser = getUserByEmail(email);
+    public AppUser setPassword(long userId, String rawPassword) {
+        var appUser = appUserRepository.findById(userId)
+            .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-        appUser.setPassword(passwordEncoder.encode(passwordSetupDto.password()));
+        appUser.setPassword(passwordEncoder.encode(rawPassword));
 
         appUserRepository.save(appUser);
 
-        log.info("Setup password for user with email: {}", email);
+        log.info("Setup password for user with email: {}", appUser.getEmail());
 
         return appUser;
     }
@@ -86,6 +79,13 @@ public class UserServiceImpl implements UserService {
     public AppUser getUserByEmail(String email) {
         return appUserRepository.findByEmail(email)
             .orElseThrow(() -> new EntityNotFoundException("User with email: " + email + " not found"));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AppUser getUserById(long id) {
+        return appUserRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("User not found"));
     }
 
     @Override

@@ -1,15 +1,18 @@
 <!DOCTYPE html>
-<html lang="ru"
+<html lang="en"
       xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{layout/onboarding :: layout(~{::content}, 'Create Account', 'register.css', 'step-7.png')}">
+      th:replace="~{layout/onboarding :: layout(~{::content}, 'Set your password', 'register.css', 'step-7.png')}">
 
 <th:block th:fragment="content">
     <div class="register-content">
-        <h1>Welcome to Resona AI</h1>
+        <h1 th:text="${isReset} ? 'Choose a new password' : 'Welcome to Resona AI'">Welcome to Resona AI</h1>
+
+        <div class="form-message error" th:if="${error}" th:text="${error}">Passwords do not match</div>
+
         <form method="post" th:action="@{/users/finalize}">
 
             <div class="form-group">
-                <input type="email" name="email" placeholder="Email" required maxlength="254">
+                <input type="email" th:value="${email}" readonly aria-label="Email">
             </div>
 
             <div class="password-wrapper">
@@ -30,7 +33,7 @@
                 </svg></span>
             </div>
             <hr>
-            <button class="btn" type="submit">Create Account</button>
+            <button class="btn" type="submit" th:text="${isReset} ? 'Save new password' : 'Create Account'">Create Account</button>
         </form>
         <script>
             document.addEventListener('DOMContentLoaded', () => {

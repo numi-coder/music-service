@@ -4,6 +4,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import kz.genvibe.media_management.model.enums.UserRole;
+import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
@@ -15,7 +16,10 @@ import org.springframework.util.Assert;
 import java.io.IOException;
 
 @Component
+@RequiredArgsConstructor
 public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
+
+    private final LandingPage landingPage;
 
     @Override
     public void onAuthenticationSuccess(
@@ -37,7 +41,7 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
             return;
         }
 
-        response.sendRedirect("/dashboard");
+        response.sendRedirect(landingPage.pathFor(user.getUsername(), authority));
     }
 
 }

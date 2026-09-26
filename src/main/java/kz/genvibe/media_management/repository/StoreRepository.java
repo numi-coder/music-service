@@ -17,4 +17,6 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
     List<ActiveStoreDto> findStoresByActiveIsTrueAndOrganization(Organization organization);
 
     List<Store> findStoresByIdIn(List<Long> idList);
+
+    Optional<Store> findByStoreUser_Email(String email);
 }

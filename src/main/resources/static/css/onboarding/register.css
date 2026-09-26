@@ -89,3 +89,38 @@ hr{
     transition: 0.2s;
     height: 54px;
 }
+
+.form-message {
+    padding: 12px 16px;
+    border-radius: 10px;
+    background: #FFFFFF99;
+    border: 1px solid #00000022;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #000000CC;
+}
+
+.form-message.error {
+    background: #FDECEC;
+    border-color: #E5484D55;
+    color: #9B1C1C;
+}
+
+.form-link {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #000000B3;
+    text-decoration: underline;
+}
+
+.form-links {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 16px;
+}
+
+.form-group input[readonly] {
+    color: #00000080;
+    cursor: default;
+}

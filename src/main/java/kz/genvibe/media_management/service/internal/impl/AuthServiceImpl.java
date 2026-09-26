@@ -121,6 +121,9 @@ public class AuthServiceImpl implements AuthService {
             null,
             List.of(appUser.getRole())
         );
+        // New session id on sign-in, so a session id known before sign-in can't be reused.
+        if (request.getSession(false) != null) request.changeSessionId();
+
         var context = SecurityContextHolder.createEmptyContext();
         context.setAuthentication(authentication);
         SecurityContextHolder.setContext(context);
