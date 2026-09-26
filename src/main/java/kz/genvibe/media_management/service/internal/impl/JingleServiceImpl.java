@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import kz.genvibe.media_management.exception.JingleCreationLimitExceededException;
 import kz.genvibe.media_management.model.domain.PlayerCommand;
 import kz.genvibe.media_management.model.domain.dto.jingle.JingleCreateDto;
+import kz.genvibe.media_management.model.domain.dto.jingle.JingleScheduleUpdateDto;
 import kz.genvibe.media_management.model.entity.*;
 import kz.genvibe.media_management.model.enums.CommandType;
 import kz.genvibe.media_management.model.enums.JingleSlotStatus;
@@ -117,6 +118,36 @@ public class JingleServiceImpl implements JingleService {
         for (final var schedule : jingleSchedules) {
             generateSlotsForJingleOnDay(jingle, schedule, LocalDate.now(zone), zone, now);
         }
+    }
+
+    /**
+     * Changes when a jingle plays without regenerating its audio. Upcoming plays are
+     * dropped and today's are rebuilt from the new schedule; past plays are kept.
+     */
+    @Override
+    @Transactional
+    public void updateJingleSchedule(long id, JingleScheduleUpdateDto dto, AppUser appUser) {
+        var jingleId = jingleRepository.findJingleByIdAndOrganization(id, appUser.getOrganization())
+            .orElseThrow(() -> new EntityNotFoundException("Jingle not found"))
+            .getId();
+
+        var now = Instant.now();
+        // Clears the persistence context, so the jingle is loaded again below.
+        jingleSlotRepository.deleteUpcoming(jingleId, JingleSlotStatus.PENDING, now);
+
+        var jingle = jingleRepository.findJingleByIdAndOrganization(jingleId, appUser.getOrganization())
+            .orElseThrow(() -> new EntityNotFoundException("Jingle not found"));
+        jingle.setStartDate(dto.startDate());
+        jingle.setEndDate(dto.endDate());
+        jingle.setRepeatingTime(dto.repeatingTime());
+
+        var zone = ZoneId.systemDefault();
+        jingle.getStores().stream()
+            .map(Store::getJingleSchedule)
+            .filter(Objects::nonNull)
+            .forEach(schedule -> generateSlotsForJingleOnDay(jingle, schedule, LocalDate.now(zone), zone, now));
+
+        log.info("Jingle {} rescheduled: {} to {}, {}", jingleId, dto.startDate(), dto.endDate(), dto.repeatingTime());
     }
 
     @Override

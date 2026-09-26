@@ -804,3 +804,81 @@ textarea.has-text {
     background: #00000033;
     cursor: not-allowed;
 }
+
+/* Voice sample button (plays ElevenLabs' free preview clip) */
+.voice-sample {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid #00000033;
+    background: #FFFFFF;
+    color: #000;
+    font-size: 11px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.voice-card.active .voice-sample {
+    border-color: #FFFFFF99;
+}
+
+.voice-sample:hover {
+    background: #F2F2F2;
+}
+
+/* Edit schedule */
+.btn-edit-schedule {
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: #FFFFFF;
+    color: #000000;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    cursor: pointer;
+    border: 1px solid #00000033;
+}
+
+.btn-edit-schedule:hover {
+    background: #F2F2F2;
+}
+
+.schedule-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.schedule-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 14px;
+    color: #00000099;
+}
+
+.schedule-form input,
+.schedule-form select {
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid #00000033;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    background: #FFFFFF;
+}
+
+.schedule-hint {
+    margin: 0;
+    font-size: 14px;
+    color: #00000099;
+}
+
+.schedule-error {
+    margin: 0;
+    min-height: 18px;
+    font-size: 14px;
+    color: #9B1C1C;
+}

@@ -34,6 +34,10 @@
                                 <span class="voice-name" th:text="${voice.name}">Rachel</span>
                                 <span class="voice-desc" th:text="${voice.description}">Calm & Clear</span>
                             </div>
+                            <button type="button" class="voice-sample"
+                                    th:data-voice="${voice.name()}"
+                                    th:title="|Listen to ${voice.name}|"
+                                    th:aria-label="|Listen to ${voice.name}|">▶</button>
                         </label>
                     </div>
                 </div>
@@ -211,6 +215,14 @@
                             </span>
                         </button>
 
+                        <button class="btn-edit-schedule" type="button"
+                                th:data-id="${jingle.id}"
+                                th:data-start="${#temporals.format(jingle.startDate, 'yyyy-MM-dd''T''HH:mm')}"
+                                th:data-end="${#temporals.format(jingle.endDate, 'yyyy-MM-dd''T''HH:mm')}"
+                                th:data-repeat="${jingle.repeatingTime.name()}">
+                            Edit schedule
+                        </button>
+
                         <button class="btn-delete-icon" th:data-id="${jingle.id}">
                             <span class="icon" th:replace="~{fragments/icons :: icon-trash}"></span>
                         </button>
@@ -244,6 +256,38 @@
 
                 <div class="modal-actions">
                     <button class="btn-primary" onclick="saveJingleStores()">Save</button>
+                </div>
+            </div>
+        </div>
+        <div id="scheduleModalOverlay" class="modal-overlay" onclick="closeScheduleModal()"></div>
+
+        <div id="scheduleModal" class="modal link-modal">
+            <div class="modal-body">
+                <div class="modal-header">
+                    <h2>Edit schedule</h2>
+                    <span class="close" onclick="closeScheduleModal()">
+                        <span class="icon" th:replace="~{fragments/icons :: icon-close}"></span>
+                    </span>
+                </div>
+
+                <div class="modal-content schedule-form">
+                    <p class="schedule-hint">Change when this jingle plays. The audio stays the same, so this doesn’t use a generation.</p>
+                    <label>Starts
+                        <input type="datetime-local" id="scheduleStart" required>
+                    </label>
+                    <label>Ends
+                        <input type="datetime-local" id="scheduleEnd" required>
+                    </label>
+                    <label>Repeats
+                        <select id="scheduleRepeat">
+                            <option th:each="rt : ${jingleRepeatingTime}" th:value="${rt.name()}" th:text="${rt.name}">Every hour</option>
+                        </select>
+                    </label>
+                    <p class="schedule-error" id="scheduleError"></p>
+                </div>
+
+                <div class="modal-actions">
+                    <button class="btn-primary" id="scheduleSaveBtn" onclick="saveSchedule()">Save</button>
                 </div>
             </div>
         </div>
@@ -993,6 +1037,7 @@
                     const id = btn.getAttribute('data-id');
 
                     if (!id || !item) return;
+                    if (!confirm("Delete this jingle? It will stop playing in all stores. This can’t be undone.")) return;
 
                     try {
                         const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
@@ -1135,6 +1180,106 @@
                 }
             });
         });
+    </script>
+    <script>
+        /* =========================
+           VOICE SAMPLES (free ElevenLabs preview clips)
+        ========================= */
+        (function () {
+            let sampleAudio = null;
+            let sampleBtn = null;
+
+            function stopSample() {
+                if (sampleAudio) sampleAudio.pause();
+                if (sampleBtn) sampleBtn.textContent = '▶';
+                sampleAudio = null;
+                sampleBtn = null;
+            }
+
+            document.querySelectorAll('.voice-sample').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    // Don't select the voice card when only listening.
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    const wasPlaying = sampleBtn === btn;
+                    stopSample();
+                    if (wasPlaying) return;
+
+                    sampleAudio = new Audio(`/api/jingles/voice-preview/${btn.dataset.voice}`);
+                    sampleBtn = btn;
+                    btn.textContent = '■';
+                    sampleAudio.addEventListener('ended', stopSample);
+                    sampleAudio.play().catch(() => {
+                        btn.title = 'Sample not available right now';
+                        stopSample();
+                    });
+                });
+            });
+        })();
+
+        /* =========================
+           EDIT SCHEDULE
+        ========================= */
+        let scheduleJingleId = null;
+
+        document.querySelectorAll('.btn-edit-schedule').forEach(btn => {
+            btn.addEventListener('click', () => {
+                scheduleJingleId = btn.dataset.id;
+                document.getElementById('scheduleStart').value = btn.dataset.start;
+                document.getElementById('scheduleEnd').value = btn.dataset.end;
+                document.getElementById('scheduleRepeat').value = btn.dataset.repeat;
+                document.getElementById('scheduleError').textContent = '';
+                document.getElementById('scheduleModal').classList.add('active');
+                document.getElementById('scheduleModalOverlay').classList.add('active');
+            });
+        });
+
+        function closeScheduleModal() {
+            document.getElementById('scheduleModal').classList.remove('active');
+            document.getElementById('scheduleModalOverlay').classList.remove('active');
+        }
+
+        async function saveSchedule() {
+            const error = document.getElementById('scheduleError');
+            const start = document.getElementById('scheduleStart').value;
+            const end = document.getElementById('scheduleEnd').value;
+
+            if (!start || !end) {
+                error.textContent = 'Choose a start and an end.';
+                return;
+            }
+            if (new Date(end) <= new Date(start)) {
+                error.textContent = 'The end must be after the start.';
+                return;
+            }
+            if (new Date(end) <= new Date()) {
+                error.textContent = 'The end must be in the future.';
+                return;
+            }
+
+            const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
+            const saveBtn = document.getElementById('scheduleSaveBtn');
+            saveBtn.disabled = true;
+
+            try {
+                const res = await fetch(`/api/jingles/${scheduleJingleId}/schedule`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json', [csrfHeader]: csrfToken },
+                    body: JSON.stringify({
+                        startDate: start,
+                        endDate: end,
+                        repeatingTime: document.getElementById('scheduleRepeat').value
+                    })
+                });
+                if (!res.ok) throw new Error('Save failed');
+                window.location.reload();
+            } catch (e) {
+                error.textContent = 'Couldn’t save the schedule. Please try again.';
+                saveBtn.disabled = false;
+            }
+        }
     </script>
 </th:block>
 </html>

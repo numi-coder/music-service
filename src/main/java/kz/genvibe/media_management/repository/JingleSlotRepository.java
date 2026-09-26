@@ -19,4 +19,12 @@ public interface JingleSlotRepository extends JpaRepository<JingleSlot, Long> {
     @Modifying(flushAutomatically = true)
     @Query("DELETE FROM JingleSlot s WHERE s.jingle.id = :jingleId")
     void deleteByJingleId(@Param("jingleId") long jingleId);
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("DELETE FROM JingleSlot s WHERE s.jingle.id = :jingleId AND s.status = :status AND s.playTime > :after")
+    void deleteUpcoming(
+        @Param("jingleId") long jingleId,
+        @Param("status") JingleSlotStatus status,
+        @Param("after") Instant after
+    );
 }

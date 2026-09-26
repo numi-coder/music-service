@@ -5,13 +5,19 @@ import kz.genvibe.media_management.config.annotations.CurrentUser;
 import kz.genvibe.media_management.exception.JingleCreationLimitExceededException;
 import kz.genvibe.media_management.model.domain.dto.jingle.JingleApproveDto;
 import kz.genvibe.media_management.model.domain.dto.jingle.JingleCreateDto;
+import kz.genvibe.media_management.model.domain.dto.jingle.JingleScheduleUpdateDto;
 import kz.genvibe.media_management.model.entity.AppUser;
+import kz.genvibe.media_management.model.enums.JingleVoice;
+import kz.genvibe.media_management.service.integration.VoicePreviewService;
 import kz.genvibe.media_management.service.internal.JingleService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.net.URI;
 import java.util.List;
 
 @Controller
@@ -20,6 +26,25 @@ import java.util.List;
 public class JingleActionController {
 
     private final JingleService jingleService;
+    private final VoicePreviewService voicePreviewService;
+
+    /** Redirects to ElevenLabs' sample clip for the voice; costs no generation credit. */
+    @GetMapping("/voice-preview/{voice}")
+    public ResponseEntity<Void> voicePreview(@PathVariable JingleVoice voice) {
+        return voicePreviewService.getPreviewUrl(voice)
+            .map(url -> ResponseEntity.status(HttpStatus.FOUND).location(URI.create(url)).<Void>build())
+            .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PatchMapping("/{id}/schedule")
+    @ResponseBody
+    public void updateSchedule(
+        @PathVariable Long id,
+        @Valid @RequestBody JingleScheduleUpdateDto dto,
+        @CurrentUser AppUser appUser
+    ) {
+        jingleService.updateJingleSchedule(id, dto, appUser);
+    }
 
     @PostMapping
     public String createJingle(

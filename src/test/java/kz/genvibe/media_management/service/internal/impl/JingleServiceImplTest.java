@@ -2,11 +2,14 @@ package kz.genvibe.media_management.service.internal.impl;
 
 import kz.genvibe.media_management.exception.JingleCreationLimitExceededException;
 import kz.genvibe.media_management.model.domain.dto.jingle.JingleCreateDto;
+import kz.genvibe.media_management.model.domain.dto.jingle.JingleScheduleUpdateDto;
 import kz.genvibe.media_management.model.entity.AppUser;
+import kz.genvibe.media_management.model.entity.Jingle;
 import kz.genvibe.media_management.model.entity.JingleGeneration;
 import kz.genvibe.media_management.model.entity.Organization;
 import kz.genvibe.media_management.model.enums.JingleCategory;
 import kz.genvibe.media_management.model.enums.JingleRepeatingTime;
+import kz.genvibe.media_management.model.enums.JingleSlotStatus;
 import kz.genvibe.media_management.model.enums.JingleVoice;
 import kz.genvibe.media_management.repository.JingleGenerationRepository;
 import kz.genvibe.media_management.repository.JingleRepository;
@@ -21,11 +24,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -98,6 +103,31 @@ class JingleServiceImplTest {
             .thenReturn(3L);
 
         assertTrue(jingleService.getJinglesCreatedThisMonth(appUser) == 3L);
+    }
+
+
+    @Test
+    @DisplayName("Rescheduling drops upcoming plays and applies the new dates, without regenerating audio")
+    void updateJingleSchedule() {
+        var jingle = Jingle.builder()
+            .startDate(LocalDateTime.now())
+            .endDate(LocalDateTime.now().plusDays(1))
+            .repeatingTime(JingleRepeatingTime.EVERY_HOUR)
+            .build();
+        ReflectionTestUtils.setField(jingle, "id", 18L);
+        when(jingleRepository.findJingleByIdAndOrganization(18L, organization)).thenReturn(Optional.of(jingle));
+
+        var newStart = LocalDateTime.now().plusDays(2).withNano(0);
+        var newEnd = newStart.plusDays(5);
+        jingleService.updateJingleSchedule(
+            18L,
+            new JingleScheduleUpdateDto(newStart, newEnd, JingleRepeatingTime.EVERY_HOUR),
+            appUser
+        );
+
+        verify(jingleSlotRepository).deleteUpcoming(eq(18L), eq(JingleSlotStatus.PENDING), any(Instant.class));
+        assertTrue(jingle.getStartDate().equals(newStart) && jingle.getEndDate().equals(newEnd));
+        verify(elevenlabsIntegrationService, never()).getSpeechFileUrl(anyString(), anyString());
     }
 
     private static JingleCreateDto dto() {
