@@ -29,7 +29,7 @@ public class EmailVerificationTokenServiceImpl implements EmailVerificationToken
         var emailVerificationToken = new EmailVerificationToken(token, expiry);
 
         emailVerificationTokenRepository.save(emailVerificationToken);
-        log.info("Generated email verification token: {}", token);
+        log.info("Generated email verification token expiring at {}", expiry);
 
         return emailVerificationToken;
     }

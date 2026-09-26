@@ -99,7 +99,7 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public AppUser verifyEmail(String token) {
         var emailVerificationToken = emailVerificationTokenService.findByToken(token)
-            .orElseThrow(() -> new EntityNotFoundException("Verification token not found: " + token));
+            .orElseThrow(() -> new EntityNotFoundException("Verification token not found"));
 
         if (emailVerificationToken.isExpired()) throw new VerificationLinkExpiredException();
 

@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout/base :: layout(
                     ~{::content},
-                    'Jingles - GenVibe',
+                    'Jingles - Resona AI',
                     'jingles.css',
                     'Create jingles',
                     'jingles'
@@ -180,7 +180,7 @@
                             <p class="jingle-title" th:text="${jingle.announcementText}">Text</p>
 
                             <p class="jingle-meta"
-                               th:text="${jingle.voice + ' · ' + '30s' + ' · Start date ' + #temporals.format(jingle.startDate, 'dd.MM.yyyy') + '/ End date ' + #temporals.format(jingle.endDate, 'dd.MM.yyyy')}" th:attr="data-src=${jingle.fileUrl}">
+                               th:text="${jingle.voice + ' · ' + '…' + ' · Start date ' + #temporals.format(jingle.startDate, 'dd.MM.yyyy') + '/ End date ' + #temporals.format(jingle.endDate, 'dd.MM.yyyy')}" th:attr="data-src=${jingle.fileUrl}">
                                 Voice · Duration · Date
                             </p>
 
@@ -256,7 +256,7 @@
                         <div class="jingle-details">
                             <p class="jingle-title" th:text="${request.announcementText}">Text</p>
                             <p class="jingle-meta"
-                               th:text="${request.voice + ' · ' + '30s' + ' · Start date ' + #temporals.format(request.startDate, 'dd.MM.yyyy') + '/ End date ' + #temporals.format(request.endDate, 'dd.MM.yyyy')}" th:attr="data-src=${request.fileUrl}">
+                               th:text="${request.voice + ' · ' + '…' + ' · Start date ' + #temporals.format(request.startDate, 'dd.MM.yyyy') + '/ End date ' + #temporals.format(request.endDate, 'dd.MM.yyyy')}" th:attr="data-src=${request.fileUrl}">
                                 Voice · Duration · Date
                             </p>
 
@@ -331,7 +331,7 @@
             audio.addEventListener('loadedmetadata', () => {
                 const duration = formatDuration(audio.duration);
 
-                el.textContent = el.textContent.replace('30s', duration);
+                el.textContent = el.textContent.replace('…', duration);
             });
         });
 
@@ -451,11 +451,21 @@
                 }
 
                 /* ==== CURRENT MONTH ==== */
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
                 for (let d = 1; d <= daysInMonth; d++) {
                     const date = new Date(year, month, d);
                     const el = document.createElement('div');
                     el.className = 'day';
                     el.textContent = d;
+
+                    // Jingles can't be scheduled in the past
+                    if (date < today) {
+                        el.classList.add('other-month', 'past');
+                        calendarGrid.appendChild(el);
+                        continue;
+                    }
 
                     if (start && sameDay(date, start)) {
                         el.classList.add('selected', 'range-start');

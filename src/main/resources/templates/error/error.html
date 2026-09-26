@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} ?: 'Something went wrong - Resona AI'">Something went wrong - Resona AI</title>
+    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #F5F4F2;
+            font-family: 'Inter', sans-serif;
+            color: #000;
+        }
+        .error-card {
+            max-width: 440px;
+            margin: 16px;
+            padding: 40px 32px;
+            border-radius: 20px;
+            background: #FFFFFFB3;
+            text-align: center;
+        }
+        .error-card .code {
+            font-size: 14px;
+            color: #00000080;
+            margin-bottom: 8px;
+        }
+        .error-card h1 {
+            font-size: 28px;
+            font-weight: 500;
+            margin: 0 0 12px;
+        }
+        .error-card p {
+            font-size: 16px;
+            line-height: 1.5;
+            color: #000000B3;
+            margin: 0 0 28px;
+        }
+        .error-card a {
+            display: inline-block;
+            padding: 14px 28px;
+            border-radius: 12px;
+            background: #000;
+            color: #FFF;
+            text-decoration: none;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+<main class="error-card" th:fragment="card(heading, message)">
+    <div class="code" th:if="${status != null}" th:text="'Error ' + ${status}">Error</div>
+    <h1 th:text="${heading} ?: 'Something went wrong'">Something went wrong</h1>
+    <p th:text="${message} ?: 'Please try again in a moment. If it keeps happening, contact us at numi@weresona.com.'">Please try again in a moment.</p>
+    <a href="/">Go to Resona AI</a>
+</main>
+</body>
+</html>

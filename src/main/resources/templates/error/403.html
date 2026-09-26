@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{error/error :: head('No access - Resona AI')}"></head>
+<body>
+<main th:replace="~{error/error :: card(
+        'No access',
+        ${path != null and path.startsWith('/stores/')}
+            ? 'This music link is for the store’s own player. Sign in with the store account that was emailed to the store, or open the link in a private window.'
+            : 'You don’t have access to this page with the account you’re signed in with.')}"></main>
+</body>
+</html>
