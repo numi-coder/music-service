@@ -790,3 +790,17 @@ textarea.has-text {
     min-width: 40px;
     text-align: right;
 }
+.limit-message {
+    margin: 8px 0 0;
+    padding: 12px 16px;
+    border-radius: 10px;
+    background: #FDECEC;
+    border: 1px solid #E5484D55;
+    color: #9B1C1C;
+    font-size: 14px;
+}
+
+.btn-generate:disabled {
+    background: #00000033;
+    cursor: not-allowed;
+}

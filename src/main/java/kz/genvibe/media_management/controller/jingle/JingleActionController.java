@@ -2,6 +2,7 @@ package kz.genvibe.media_management.controller.jingle;
 
 import jakarta.validation.Valid;
 import kz.genvibe.media_management.config.annotations.CurrentUser;
+import kz.genvibe.media_management.exception.JingleCreationLimitExceededException;
 import kz.genvibe.media_management.model.domain.dto.jingle.JingleApproveDto;
 import kz.genvibe.media_management.model.domain.dto.jingle.JingleCreateDto;
 import kz.genvibe.media_management.model.entity.AppUser;
@@ -9,6 +10,7 @@ import kz.genvibe.media_management.service.internal.JingleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -22,9 +24,14 @@ public class JingleActionController {
     @PostMapping
     public String createJingle(
         @CurrentUser AppUser appUser,
-        @Valid JingleCreateDto dto
+        @Valid JingleCreateDto dto,
+        RedirectAttributes redirectAttributes
     ) {
-        jingleService.createJingle(appUser, dto);
+        try {
+            jingleService.createJingle(appUser, dto);
+        } catch (JingleCreationLimitExceededException e) {
+            redirectAttributes.addFlashAttribute("jingleError", e.getMessage());
+        }
         return "redirect:/jingles";
     }
 

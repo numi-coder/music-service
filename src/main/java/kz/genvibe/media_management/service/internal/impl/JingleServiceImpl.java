@@ -7,6 +7,7 @@ import kz.genvibe.media_management.model.domain.dto.jingle.JingleCreateDto;
 import kz.genvibe.media_management.model.entity.*;
 import kz.genvibe.media_management.model.enums.CommandType;
 import kz.genvibe.media_management.model.enums.JingleSlotStatus;
+import kz.genvibe.media_management.repository.JingleGenerationRepository;
 import kz.genvibe.media_management.repository.JingleRepository;
 import kz.genvibe.media_management.repository.JingleSlotRepository;
 import kz.genvibe.media_management.service.integration.ElevenlabsIntegrationService;
@@ -24,7 +25,9 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -37,6 +40,7 @@ public class JingleServiceImpl implements JingleService {
     private final StoreService storeService;
     private final ElevenlabsIntegrationService elevenlabsIntegrationService;
     private final JingleRepository jingleRepository;
+    private final JingleGenerationRepository jingleGenerationRepository;
     private final JingleSlotRepository jingleSlotRepository;
     private final SimpMessagingTemplate messagingTemplate;
 
@@ -44,10 +48,13 @@ public class JingleServiceImpl implements JingleService {
     @Transactional
     public void createJingle(AppUser appUser, JingleCreateDto dto) {
         var organization = appUser.getOrganization();
-        var jinglesCount = jingleRepository.countAllByOrganization(organization);
 
-        if (jinglesCount >= 20) {
-            throw new JingleCreationLimitExceededException("You exceeded the limit of 20");
+        if (getJinglesCreatedThisMonth(appUser) >= MONTHLY_LIMIT) {
+            var resetsOn = LocalDate.now().withDayOfMonth(1).plusMonths(1);
+            throw new JingleCreationLimitExceededException(
+                "You’ve used all " + MONTHLY_LIMIT + " jingles for this month. The limit resets on "
+                    + resetsOn.format(DateTimeFormatter.ofPattern("d MMMM", Locale.ENGLISH)) + "."
+            );
         }
 
         var speechFileUrl = elevenlabsIntegrationService.getSpeechFileUrl(
@@ -60,6 +67,7 @@ public class JingleServiceImpl implements JingleService {
         jingle.setFileUrl(speechFileUrl);
 
         jingleRepository.save(jingle);
+        jingleGenerationRepository.save(new JingleGeneration(organization));
 
         log.info("Jingle created for organization: {}", appUser.getOrganization().getCompanyName());
     }
@@ -117,6 +125,14 @@ public class JingleServiceImpl implements JingleService {
         var jingle = jingleRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Jingle not found"));
         jingle.setRequestedToPause(true);
+    }
+
+    /** Jingles generated since the 1st of this month (app time zone); deleting jingles doesn't give them back. */
+    @Override
+    @Transactional(readOnly = true)
+    public long getJinglesCreatedThisMonth(AppUser appUser) {
+        var monthStart = LocalDate.now().withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant();
+        return jingleGenerationRepository.countAllByOrganizationAndCreatedAtGreaterThanEqual(appUser.getOrganization(), monthStart);
     }
 
     @Override

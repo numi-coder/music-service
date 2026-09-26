@@ -30,6 +30,8 @@ public class JingleController {
         model.addAttribute("jingleCategory", JingleCategory.values());
         model.addAttribute("jingleRepeatingTime", JingleRepeatingTime.values());
         model.addAttribute("jingleHistory", jingleService.getJingleHistory(appUser));
+        model.addAttribute("jinglesUsedThisMonth", jingleService.getJinglesCreatedThisMonth(appUser));
+        model.addAttribute("monthlyJingleLimit", JingleService.MONTHLY_LIMIT);
         model.addAttribute("jingleRequestsToPause", jingleService.getJingleRequestsToPause(appUser));
         model.addAttribute("activeStores", storeService.getAllActiveStores(appUser));
         model.addAttribute("organization", appUser.getOrganization());

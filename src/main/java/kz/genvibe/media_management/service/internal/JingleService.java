@@ -7,8 +7,11 @@ import kz.genvibe.media_management.model.entity.Jingle;
 import java.util.List;
 
 public interface JingleService {
+    int MONTHLY_LIMIT = 20;
+
     // Read methods
     List<Jingle> getJingleHistory(AppUser appUser);
+    long getJinglesCreatedThisMonth(AppUser appUser);
     List<Jingle> getJingleRequestsToPause(AppUser appUser);
 
     // Modify methods

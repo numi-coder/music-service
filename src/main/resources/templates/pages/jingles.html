@@ -10,7 +10,11 @@
 
 <th:block th:fragment="content">
     <div class="jingles-page">
-        <p class="subtitle">Monthly generation limit: 20 jingles</p>
+        <p class="subtitle"
+           th:text="|Monthly generation limit: ${jinglesUsedThisMonth} of ${monthlyJingleLimit} used this month|">
+            Monthly generation limit: 20 jingles
+        </p>
+        <p class="limit-message" th:if="${jingleError}" th:text="${jingleError}">Limit reached</p>
 
         <section class="content-card">
             <form th:action="@{/api/jingles}" method="post" id="jingleForm">
@@ -157,7 +161,9 @@
                     <div class="char-counter">0/500 characters</div>
                 </div>
 
-                <button type="submit" class="btn-generate">
+                <button type="submit" class="btn-generate"
+                        th:disabled="${jinglesUsedThisMonth >= monthlyJingleLimit}"
+                        th:title="${jinglesUsedThisMonth >= monthlyJingleLimit} ? 'Monthly limit reached' : null">
                     <span class="icon" th:replace="~{fragments/icons :: icon-generate}"></span>
                     Generate Jingle
                 </button>
