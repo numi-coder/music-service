@@ -62,6 +62,8 @@ public class WebSecurityConfig implements WebMvcConfigurer {
                     "/js/**",
                     "/users/finalize",
                     "/player-sw.js",
+                    "/player",
+                    "/manifest.json",
                     "/terms",
                     "/privacy",
                     "/ws-player/**",

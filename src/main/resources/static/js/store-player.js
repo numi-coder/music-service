@@ -335,6 +335,7 @@
 
             stompClient.subscribe('/topic/store.' + config.storeId + '.init', (message) => {
                 const data = JSON.parse(message.body);
+                rememberInit(data);
                 playlist = (data.playlistUrls || []).map(norm);
                 scheduleSlots(data.dailySlots);
                 saveForOffline();
@@ -420,7 +421,11 @@
 
     function registerServiceWorker() {
         if (!('serviceWorker' in navigator)) return;
-        navigator.serviceWorker.register('/player-sw.js', {scope: '/stores/'})
+        // One app-wide worker (needed for the installed app); drop the older player-only one.
+        navigator.serviceWorker.getRegistrations()
+            .then((regs) => regs.filter((r) => new URL(r.scope).pathname === '/stores/').forEach((r) => r.unregister()))
+            .catch(() => {});
+        navigator.serviceWorker.register('/player-sw.js', {scope: '/'})
             .catch((e) => console.warn('Offline support unavailable', e));
     }
 
@@ -534,9 +539,66 @@
         statusEl.dataset.state = state;
     }
 
+    // ---------- last known playlist (for starting without internet) ----------
+    const INIT_KEY = 'resona.lastInit.' + config.storeId;
+
+    function rememberInit(data) {
+        try {
+            localStorage.setItem(INIT_KEY, JSON.stringify({
+                playlistUrls: data.playlistUrls || [],
+                dailySlots: data.dailySlots || []
+            }));
+        } catch (e) { /* storage unavailable: offline starts just won't know the playlist */ }
+    }
+
+    function restoreInit() {
+        try {
+            const saved = JSON.parse(localStorage.getItem(INIT_KEY) || 'null');
+            if (!saved) return;
+            playlist = (saved.playlistUrls || []).map(norm);
+            scheduleSlots(saved.dailySlots);
+        } catch (e) { /* ignore a broken saved copy */ }
+    }
+
+    // ---------- install as app ----------
+    const installBtn = document.getElementById('installApp');
+    const installHelp = document.getElementById('installHelp');
+    let installPrompt = null;
+
+    const isInstalled = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+        || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        installPrompt = e;
+        if (installBtn && !isInstalled) installBtn.hidden = false;
+    });
+
+    if (installBtn && !isInstalled && isIOS) installBtn.hidden = false;
+
+    if (installBtn) {
+        installBtn.addEventListener('click', async () => {
+            if (installPrompt) {
+                installPrompt.prompt();
+                const choice = await installPrompt.userChoice.catch(() => null);
+                if (choice && choice.outcome === 'accepted') installBtn.hidden = true;
+                installPrompt = null;
+            } else if (installHelp) {
+                installHelp.hidden = !installHelp.hidden;
+            }
+        });
+    }
+
+    window.addEventListener('appinstalled', () => {
+        if (installBtn) installBtn.hidden = true;
+        if (installHelp) installHelp.hidden = true;
+    });
+
     // ---------- go ----------
     registerServiceWorker();
     if (!offlineEnabled) deleteSavedMusic();
+    restoreInit();
     connect();
     showOverlay('Tap to start the music');
     updateStatus();

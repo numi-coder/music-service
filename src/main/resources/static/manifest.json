@@ -1,0 +1,16 @@
+{
+  "name": "Resona AI",
+  "short_name": "Resona",
+  "description": "Background music and voice announcements for your business.",
+  "start_url": "/player",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#F5F4F2",
+  "theme_color": "#111111",
+  "icons": [
+    { "src": "/assets/app/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/assets/app/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/assets/app/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
