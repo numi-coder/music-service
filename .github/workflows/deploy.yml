@@ -1,0 +1,67 @@
+# Manual deploy to weresona.com: Actions tab -> Deploy -> Run workflow.
+# Needs the repository secret DEPLOY_SSH_KEY (a private key allowed to log in as root on the server).
+name: Deploy
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+env:
+  SERVER: 139.180.184.254
+  # Server host key, pinned so the deploy can't be redirected to another machine.
+  # Fingerprint SHA256:7ODNoQaUHimeTed900JlziM3btxLCwpLDrNcWhQ5BGA
+  KNOWN_HOST: "139.180.184.254 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJFUeB0LIgXsBz6+4IrmdnU91tjQawB42+J47IHxPNZO"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Test and build
+        run: ./gradlew --no-daemon test bootJar
+
+      - name: Check jar contents
+        id: jar
+        run: |
+          JAR=$(ls build/libs/*.jar | grep -v plain)
+          for lib in spring-core spring-boot-4 spring-context postgresql hibernate-core; do
+            jar tf "$JAR" | grep -q "BOOT-INF/lib/$lib" || { echo "Missing $lib in $JAR"; exit 1; }
+          done
+          echo "path=$JAR" >> "$GITHUB_OUTPUT"
+          echo "sha=$(sha256sum "$JAR" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          echo "$KNOWN_HOST" > ~/.ssh/known_hosts
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+      - name: Upload
+        run: |
+          scp -i ~/.ssh/deploy_key "${{ steps.jar.outputs.path }}" root@$SERVER:/root/resona/next.jar
+          scp -i ~/.ssh/deploy_key scripts/deploy.sh root@$SERVER:/root/resona/deploy.sh
+          ssh -i ~/.ssh/deploy_key root@$SERVER chmod 700 /root/resona/deploy.sh
+
+      - name: Deploy (with automatic rollback)
+        run: ssh -i ~/.ssh/deploy_key -o ServerAliveInterval=30 root@$SERVER /root/resona/deploy.sh "${{ steps.jar.outputs.sha }}"
+
+      - name: Check the public site
+        run: curl -fsSL -m 30 -o /dev/null -w "https://weresona.com -> %{http_code}\n" https://weresona.com/auth/login
+
+      - name: Clean up key
+        if: always()
+        run: rm -f ~/.ssh/deploy_key
