@@ -68,7 +68,6 @@ bootJar {
 	layered {
 		enabled = true
 	}
-	classpath = sourceSets.main.runtimeClasspath - configurations.developmentOnly
 }
 
 tasks.named('test') {

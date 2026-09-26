@@ -27,7 +27,7 @@ jobs:
       - name: Build jar
         run: ./gradlew --no-daemon bootJar -x test
 
-      # A jar built on Windows once shipped without spring-core; fail loudly if that ever happens again.
+      # build.gradle once stripped spring-core etc. out of the jar; fail loudly if that ever happens again.
       - name: Check jar contents
         run: |
           JAR=$(ls build/libs/*.jar | grep -v plain)
