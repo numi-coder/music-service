@@ -78,6 +78,30 @@ class AuthPagesRenderingTest {
         assertTrue(html.contains("works for 1 hour"));
     }
 
+    @Test
+    void legalPagesRender() {
+        var terms = render("pages/legal/terms", Map.of(), Map.of());
+        var privacy = render("pages/legal/privacy", Map.of(), Map.of());
+
+        assertTrue(terms.contains("<title>Terms of Service - Resona AI</title>"), terms);
+        assertTrue(terms.contains("governed by the laws of Singapore"));
+        assertTrue(privacy.contains("Personal Data Protection Act 2012"), privacy);
+        assertTrue(privacy.contains("Data Protection Officer"));
+        assertTrue(privacy.contains("ElevenLabs"));
+    }
+
+    @Test
+    void signupStepsLinkToTermsAndPrivacy() {
+        var emailStep = render("pages/auth/onboarding/verify-email", Map.of(), Map.of());
+        var setPassword = render("pages/auth/register", Map.of(), Map.of("email", "a@b.c", "isReset", false));
+        var resetPassword = render("pages/auth/register", Map.of(), Map.of("email", "a@b.c", "isReset", true));
+
+        assertTrue(emailStep.contains("By continuing you agree to our"), emailStep);
+        assertTrue(setPassword.contains("By creating an account you agree to our"));
+        assertFalse(resetPassword.contains("By creating an account"));
+        assertTrue(render("pages/auth/login", Map.of(), Map.of()).contains("href=\"/privacy\""));
+    }
+
     private String render(String template, Map<String, String> params, Map<String, Object> model) {
         var servletContext = new MockServletContext();
         var request = new MockHttpServletRequest(servletContext);

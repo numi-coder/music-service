@@ -124,3 +124,13 @@ hr{
     color: #00000080;
     cursor: default;
 }
+
+.form-link-quiet {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: #00000066;
+}
+
+.form-link-quiet a {
+    color: #00000080;
+}

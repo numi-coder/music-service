@@ -218,3 +218,14 @@ input:valid {
         display: none;
     }
 }
+.legal-consent {
+    margin: 12px 0 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #00000080;
+}
+
+.legal-consent a {
+    color: #000000B3;
+}

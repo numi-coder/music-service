@@ -354,3 +354,17 @@ input:valid {
     align-items: center;
     cursor: pointer;
 }
+.sidebar-legal {
+    padding: 4px 12px 0;
+    font-size: 12px;
+    color: #00000066;
+}
+
+.sidebar-legal a {
+    color: #00000080;
+    text-decoration: none;
+}
+
+.sidebar-legal a:hover {
+    text-decoration: underline;
+}
