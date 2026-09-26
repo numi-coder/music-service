@@ -338,6 +338,7 @@
                 playlist = (data.playlistUrls || []).map(norm);
                 scheduleSlots(data.dailySlots);
                 saveForOffline();
+                estimateOfflineSize();
                 if (wantsPlayback && musicEls.every((el) => el.paused)) playNext(1.5);
                 updateStatus();
             });
@@ -384,16 +385,74 @@
         heartbeatTimer = null;
     }
 
-    // ---------- saving for offline ----------
+    // ---------- saving for offline (opt-in, per device) ----------
+    const OFFLINE_SETTING_KEY = 'resona.saveMusicOffline';
+    const offlineToggle = document.getElementById('offlineToggle');
+    const offlineSizeEl = document.getElementById('offlineSize');
+    let offlineEnabled = readOfflineSetting();
+    let downloadAbort = null;
+    let sizeEstimated = false;
+
+    function readOfflineSetting() {
+        try {
+            return localStorage.getItem(OFFLINE_SETTING_KEY) === '1';
+        } catch (e) {
+            return false;
+        }
+    }
+
+    function writeOfflineSetting(enabled) {
+        try {
+            localStorage.setItem(OFFLINE_SETTING_KEY, enabled ? '1' : '0');
+        } catch (e) { /* private mode: the choice lasts for this visit */ }
+    }
+
+    if (offlineToggle) {
+        offlineToggle.checked = offlineEnabled;
+        offlineToggle.addEventListener('change', () => {
+            offlineEnabled = offlineToggle.checked;
+            writeOfflineSetting(offlineEnabled);
+            if (offlineEnabled) saveForOffline();
+            else deleteSavedMusic();
+            updateStatus();
+        });
+    }
+
     function registerServiceWorker() {
         if (!('serviceWorker' in navigator)) return;
         navigator.serviceWorker.register('/player-sw.js', {scope: '/stores/'})
             .catch((e) => console.warn('Offline support unavailable', e));
     }
 
+    // Shows how much space saving would take, so staff can decide.
+    async function estimateOfflineSize() {
+        if (sizeEstimated || !offlineSizeEl || playlist.length === 0) return;
+        sizeEstimated = true;
+        let total = 0;
+        for (const url of playlist) {
+            const head = await fetch(url, {method: 'HEAD', mode: 'cors'}).catch(() => null);
+            total += head ? Number(head.headers.get('Content-Length') || 0) : 0;
+        }
+        if (total > 0) offlineSizeEl.textContent = `(about ${formatBytes(Math.min(total, MAX_OFFLINE_BYTES))})`;
+    }
+
+    function formatBytes(bytes) {
+        return bytes >= 1024 ** 3 ? (bytes / 1024 ** 3).toFixed(1) + ' GB' : Math.round(bytes / 1024 ** 2) + ' MB';
+    }
+
+    async function deleteSavedMusic() {
+        if (downloadAbort) downloadAbort.abort();
+        cachedUrls.clear();
+        cacheProgress = null;
+        if ('caches' in window) await caches.delete(AUDIO_CACHE).catch(() => {});
+        updateStatus();
+    }
+
     async function saveForOffline() {
-        if (!('caches' in window) || cachingInProgress) return;
+        if (!offlineEnabled || !('caches' in window) || cachingInProgress) return;
         cachingInProgress = true;
+        downloadAbort = new AbortController();
+        const signal = downloadAbort.signal;
         try {
             if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
             const cache = await caches.open(AUDIO_CACHE);
@@ -418,18 +477,20 @@
             let used = 0;
             cacheProgress = {done: 0, total: tracks.length};
             for (const url of wanted) {
+                if (signal.aborted || !offlineEnabled) break;
                 const cached = await cache.match(url);
                 if (cached) {
                     used += Number(cached.headers.get('Content-Length') || 0);
                     cachedUrls.add(url);
                 } else {
                     if (!navigator.onLine) break;
-                    const head = await fetch(url, {method: 'HEAD', mode: 'cors'}).catch(() => null);
+                    const head = await fetch(url, {method: 'HEAD', mode: 'cors', signal}).catch(() => null);
                     const size = head ? Number(head.headers.get('Content-Length') || 0) : 0;
                     if (used + size > budget) continue;
-                    const response = await fetch(url, {mode: 'cors'}).catch(() => null);
+                    const response = await fetch(url, {mode: 'cors', signal}).catch(() => null);
                     if (!response || !response.ok) continue;
                     await cache.put(url, response);
+                    if (signal.aborted || !offlineEnabled) break;
                     used += size;
                     cachedUrls.add(url);
                 }
@@ -437,10 +498,11 @@
                 updateStatus();
             }
         } catch (e) {
-            console.warn('Saving music for offline failed', e);
+            if (!signal.aborted) console.warn('Saving music for offline failed', e);
         } finally {
             cachingInProgress = false;
             cacheProgress = null;
+            downloadAbort = null;
             updateStatus();
         }
     }
@@ -465,7 +527,7 @@
             text = `Live · saving music for offline (${cacheProgress.done} of ${cacheProgress.total})`;
         } else {
             state = 'live';
-            text = savedTracks > 0 ? `Live · ${savedTracks} of ${playlist.length} tracks saved for offline` : 'Live';
+            text = offlineEnabled && savedTracks > 0 ? `Live · ${savedTracks} of ${playlist.length} tracks saved for offline` : 'Live';
         }
 
         statusEl.textContent = text;
@@ -474,6 +536,7 @@
 
     // ---------- go ----------
     registerServiceWorker();
+    if (!offlineEnabled) deleteSavedMusic();
     connect();
     showOverlay('Tap to start the music');
     updateStatus();

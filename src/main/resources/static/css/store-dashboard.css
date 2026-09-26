@@ -322,3 +322,23 @@
 .player-status[data-state="offline"]::before {
     background: #E5484D;
 }
+
+/* Opt-in: save this store's music on the device for offline play */
+.offline-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: -12px auto 24px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: #00000099;
+    cursor: pointer;
+}
+
+.offline-toggle input {
+    width: 16px;
+    height: 16px;
+    accent-color: #000;
+    cursor: pointer;
+}
