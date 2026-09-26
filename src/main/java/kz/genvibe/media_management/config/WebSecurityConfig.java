@@ -61,6 +61,7 @@ public class WebSecurityConfig implements WebMvcConfigurer {
                     "/css/**",
                     "/js/**",
                     "/users/finalize",
+                    "/player-sw.js",
                     "/ws-player/**",
                     "/files/**"
                 ).permitAll()

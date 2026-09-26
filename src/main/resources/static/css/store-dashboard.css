@@ -235,3 +235,90 @@
 .orb-play.is-playing #icon-pause {
     display: block;
 }
+
+/* Tap to start: full-screen prompt, because browsers only allow sound after a tap */
+.tap-to-start {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(245, 244, 242, 0.92);
+    backdrop-filter: blur(6px);
+    cursor: pointer;
+}
+
+.tap-to-start.visible {
+    display: flex;
+}
+
+.tap-to-start-card {
+    text-align: center;
+    padding: 40px 48px;
+}
+
+.tap-to-start-icon {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 24px;
+    border-radius: 50%;
+    background: #000;
+    color: #fff;
+    font-size: 44px;
+    line-height: 120px;
+    padding-left: 8px;
+    box-sizing: border-box;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+}
+
+.tap-to-start-text {
+    margin: 0 0 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 28px;
+    font-weight: 500;
+    color: #000;
+}
+
+.tap-to-start-hint {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    color: #00000080;
+}
+
+/* Connection / offline status under the play button */
+.player-status {
+    margin: 12px auto 24px;
+    width: fit-content;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    background: #FFFFFFB3;
+    border: 1px solid #00000014;
+    color: #000000B3;
+}
+
+.player-status::before {
+    content: "";
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin-right: 8px;
+    border-radius: 50%;
+    background: #A0A0A0;
+    vertical-align: 1px;
+}
+
+.player-status[data-state="live"]::before {
+    background: #22A06B;
+}
+
+.player-status[data-state="reconnecting"]::before {
+    background: #E2B203;
+}
+
+.player-status[data-state="offline"]::before {
+    background: #E5484D;
+}

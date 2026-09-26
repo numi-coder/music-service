@@ -24,6 +24,9 @@ jobs:
       - name: Test
         run: ./gradlew --no-daemon test
 
+      - name: Test player service worker
+        run: node src/test/js/player-sw.test.mjs
+
       - name: Build jar
         run: ./gradlew --no-daemon bootJar -x test
 

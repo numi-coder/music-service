@@ -139,6 +139,17 @@
             </div>
         </div>
     </div>
+    <!-- Tap to start: browsers only allow sound after a tap -->
+    <div class="tap-to-start" id="tapToStart" role="button" tabindex="0">
+        <div class="tap-to-start-card">
+            <div class="tap-to-start-icon">▶</div>
+            <p class="tap-to-start-text" id="tapToStartText">Tap to start the music</p>
+            <p class="tap-to-start-hint" th:text="${organization.companyName}">Company</p>
+        </div>
+    </div>
+
+    <p class="player-status" id="playerStatus" data-state="reconnecting" aria-live="polite">Connecting…</p>
+
     <!-- ACTIVE JINGLES - Список активных джинглов -->
     <div class="active-jingles-card">
         <h2>Active Jingles</h2>
@@ -190,157 +201,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 
     <script th:inline="javascript">
-        // Данные из контекста Spring
-        const orgId = [[${organization.id}]];
-        const storeId = [[${store.id}]];
-
-        // Состояние плеера
-        let stompClient = null;
-        let mainAudio = new Audio();
-        let playlist = [];
-        let currentTrackIndex = 0;
-        let isPlaying = false;
-        let isJinglePlaying = false;
-
-        // Аналитика
-        let heartbeatInterval = null;
-
-        const orbBtn = document.querySelector('.orb-play');
-        const orbIcon = document.querySelector('.orb img');
-
-        mainAudio.crossOrigin = "anonymous";
-        mainAudio.volume = 1.0;
-
-        // 1. ПОДКЛЮЧЕНИЕ WEBSOCKET
-        document.addEventListener('DOMContentLoaded', () => {
-            connect();
-        });
-
-        function connect() {
-            const socket = new SockJS('/ws-player');
-            stompClient = Stomp.over(socket);
-            stompClient.debug = null;
-
-            stompClient.connect({}, function (frame) {
-                console.log('STOMP Connected: ' + frame);
-
-                stompClient.subscribe('/topic/store.' + storeId + '.init', function (message) {
-                    const data = JSON.parse(message.body);
-                    playlist = data.playlistUrls || [];
-                    if (playlist.length > 0 && isPlaying && (mainAudio.paused || !mainAudio.src)) {
-                        playTrack(0);
-                    }
-                });
-
-                stompClient.subscribe('/topic/store.' + storeId + '.commands', function (message) {
-                    const command = JSON.parse(message.body);
-                    handleCommand(command);
-                });
-
-                stompClient.send("/app/sync." + storeId, {}, {});
-            }, function (error) {
-                console.error('STOMP error:', error);
-                setTimeout(connect, 5000);
-            });
-        }
-
-        // 2. ЛОГИКА АНАЛИТИКИ (БЭКЕНД)
-        function startAnalytics() {
-            if (heartbeatInterval) clearInterval(heartbeatInterval);
-            // Каждую минуту отправляем сигнал серверу для инкремента playMinutes
-            heartbeatInterval = setInterval(() => {
-                if (isPlaying && stompClient && stompClient.connected) {
-                    stompClient.send("/app/track.ping." + storeId, {}, {});
-                }
-            }, 60000);
-        }
-
-        function stopAnalytics() {
-            if (heartbeatInterval) {
-                clearInterval(heartbeatInterval);
-                heartbeatInterval = null;
-            }
-        }
-
-        // 3. ВОСПРОИЗВЕДЕНИЕ
-        function playTrack(index) {
-            if (playlist.length === 0) return;
-            currentTrackIndex = index % playlist.length;
-            mainAudio.src = playlist[currentTrackIndex];
-            mainAudio.play().catch(err => console.warn("Playback blocked."));
-        }
-
-        mainAudio.onended = () => {
-            if (!isJinglePlaying) playTrack(currentTrackIndex + 1);
+        window.RESONA_PLAYER = {
+            storeId: [[${store.id}]],
+            companyName: [[${organization.companyName}]]
         };
+    </script>
+    <script th:src="@{/js/store-player.js}"></script>
 
-        function handleCommand(command) {
-            if (command.type === 'PLAY_JINGLE' && isPlaying) {
-                playJingle(command.jingleUrl);
-            } else if (command.type === 'FORCE_DISCONNECT') {
-                stopPlaybackUI();
-                alert("Disconnected: logged in from another device.");
-            }
-        }
-
-        function playJingle(url) {
-            if (isJinglePlaying) return;
-            isJinglePlaying = true;
-            const jingleAudio = new Audio(url);
-            jingleAudio.crossOrigin = "anonymous";
-
-            fadeAudio(mainAudio, 0.1, 400);
-            setTimeout(() => {
-                jingleAudio.play().catch(() => {
-                    isJinglePlaying = false;
-                    fadeAudio(mainAudio, 1.0, 400);
-                });
-            }, 250);
-
-            jingleAudio.onended = () => {
-                fadeAudio(mainAudio, 1.0, 800);
-                isJinglePlaying = false;
-                if (mainAudio.ended) playTrack(currentTrackIndex + 1);
-            };
-        }
-
-        function fadeAudio(audio, targetVolume, duration) {
-            const startVolume = audio.volume;
-            const diff = targetVolume - startVolume;
-            const steps = 20;
-            const stepTime = duration / steps;
-            let currentStep = 0;
-            const interval = setInterval(() => {
-                currentStep++;
-                audio.volume = Math.min(Math.max(startVolume + (diff * (currentStep / steps)), 0), 1);
-                if (currentStep >= steps) clearInterval(interval);
-            }, stepTime);
-        }
-
-        function stopPlaybackUI() {
-            mainAudio.pause();
-            mainAudio.src = "";
-            isPlaying = false;
-            stopAnalytics();
-            orbBtn.classList.remove('is-playing'); // ← возвращает play иконку
-        }
-
-        orbBtn.addEventListener('click', () => {
-            if (!isPlaying) {
-                isPlaying = true;
-                orbBtn.classList.add('is-playing'); // ← показывает pause иконку
-                startAnalytics();
-
-                if (playlist.length > 0) {
-                    playTrack(currentTrackIndex);
-                } else if (stompClient && stompClient.connected) {
-                    stompClient.send("/app/sync." + storeId, {}, {});
-                }
-            } else {
-                stopPlaybackUI();
-            }
-        });
-
+    <script>
         // Запросы на паузу (API)
         function handlePauseRequest(button) {
             const jingleId = button.getAttribute('data-id');
