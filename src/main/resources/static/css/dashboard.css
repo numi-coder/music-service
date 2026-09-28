@@ -528,3 +528,28 @@ linear-gradient(0deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2));
 .modal.active, .modal-overlay.active {
     display: block;
 }
+/* ===== Phones and small tablets ===== */
+@media (max-width: 900px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .content-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .content-card {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .stat-card {
+        min-width: 0;
+    }
+
+    .store-info {
+        max-width: none;
+    }
+}

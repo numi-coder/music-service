@@ -358,3 +358,16 @@
 .play-btn {
     margin-left: auto;
 }
+/* ===== Phones and small tablets ===== */
+@media (max-width: 900px) {
+    .music-info {
+        width: auto;
+        min-width: 0;
+        flex: 1;
+    }
+
+    .waveform,
+    .waveform-placeholder {
+        display: none;
+    }
+}

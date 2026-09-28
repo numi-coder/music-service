@@ -368,3 +368,112 @@ input:valid {
 .sidebar-legal a:hover {
     text-decoration: underline;
 }
+
+/* ===== Phones and small tablets ===== */
+.menu-toggle,
+.menu-overlay {
+    display: none;
+}
+
+@media (max-width: 900px) {
+    body {
+        display: block;
+    }
+
+    .sidebar {
+        z-index: 1100;
+        background: #F5F3F1;
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+        box-shadow: none;
+    }
+
+    body.menu-open .sidebar {
+        transform: translateX(0);
+        box-shadow: 8px 0 32px rgba(0, 0, 0, 0.12);
+    }
+
+    .menu-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 1050;
+        background: rgba(0, 0, 0, 0.3);
+    }
+
+    body.menu-open .menu-overlay {
+        display: block;
+    }
+
+    body.menu-open {
+        overflow: hidden;
+    }
+
+    .menu-toggle {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 5px;
+        width: 40px;
+        height: 40px;
+        padding: 0 9px;
+        border: 1px solid #00000022;
+        border-radius: 10px;
+        background: #FFFFFF;
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+
+    .menu-toggle span {
+        display: block;
+        height: 2px;
+        border-radius: 2px;
+        background: #000;
+    }
+
+    .main-container {
+        margin-left: 0;
+        width: 100%;
+        max-width: 100vw;
+        padding: 16px 16px 40px;
+        overflow-x: hidden;
+    }
+
+    .header-panel {
+        margin-bottom: 24px;
+        gap: 12px;
+        align-items: center;
+    }
+
+    .header-left {
+        min-width: 0;
+    }
+
+    h1 {
+        font-size: 24px;
+        overflow-wrap: anywhere;
+    }
+
+    .subtitle {
+        margin-top: -12px;
+        margin-bottom: 24px;
+        font-size: 15px;
+    }
+
+    img,
+    canvas,
+    video {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 900px) {
+    /* Pop-up windows fit the screen */
+    .modal {
+        width: calc(100vw - 32px) !important;
+        max-width: 662px;
+        left: 50% !important;
+        max-height: 85vh;
+        overflow-y: auto;
+        box-sizing: border-box;
+    }
+}

@@ -371,3 +371,59 @@
     line-height: 1.5;
     color: #000000B3;
 }
+
+/* ===== Phones and small tablets ===== */
+@media (max-width: 900px) {
+    .main-container {
+        margin-left: 0;
+        width: 100%;
+        padding: 16px 16px 40px;
+    }
+
+    .content-wrapper {
+        gap: 24px;
+    }
+
+    .orb-container {
+        margin: 24px 0 8px;
+    }
+
+    .player-status {
+        max-width: 100%;
+        text-align: center;
+    }
+
+    .offline-toggle {
+        margin: -4px auto 16px;
+        padding: 0 4px;
+        align-items: flex-start;
+        text-align: left;
+    }
+
+    .active-jingles-card {
+        padding: 12px;
+    }
+
+    .jingle-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        padding: 14px;
+    }
+
+    .jingle-meta {
+        flex-wrap: wrap;
+    }
+
+    .btn-pause {
+        justify-content: center;
+    }
+
+    .tap-to-start-card {
+        padding: 24px;
+    }
+
+    .tap-to-start-text {
+        font-size: 22px;
+    }
+}

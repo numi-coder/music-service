@@ -29,11 +29,17 @@
 <!-- Sidebar -->
 <aside th:replace="~{fragments/sidebar :: sidebar(activePage=${activePage})}"></aside>
 
+<div class="menu-overlay" onclick="document.body.classList.remove('menu-open')"></div>
+
 <!-- Main -->
 <main class="main-container">
     <header class="header-panel">
 
         <div class="header-left">
+            <button type="button" class="menu-toggle" aria-label="Open menu" aria-controls="sidebarMenu" aria-expanded="false"
+                    onclick="document.body.classList.toggle('menu-open'); this.setAttribute('aria-expanded', document.body.classList.contains('menu-open'))">
+                <span></span><span></span><span></span>
+            </button>
             <a th:if="${(!#lists.isEmpty(stores) and activePage == 'stores') or activePage == 'music'}"
                class="back-icon"
                href="/dashboard">

@@ -229,3 +229,34 @@ input:valid {
 .legal-consent a {
     color: #000000B3;
 }
+
+/* ===== Phones ===== */
+@media (max-width: 768px) {
+    .onboarding-wrapper {
+        align-items: flex-start;
+        padding: 16px;
+        box-sizing: border-box;
+    }
+
+    .onboarding-container,
+    .onboarding-right,
+    .onboarding-right main {
+        width: 100%;
+    }
+
+    /* Each step sets a fixed desktop width and 56px side margins; let it fit the screen. */
+    .onboarding-right main > * {
+        width: auto !important;
+        max-width: 100% !important;
+        margin: 24px 20px !important;
+        box-sizing: border-box;
+    }
+
+    h1 {
+        font-size: 26px;
+    }
+
+    .btn-primary {
+        width: 100%;
+    }
+}
