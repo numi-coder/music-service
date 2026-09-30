@@ -1,0 +1,218 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #F5F4F2;
+    font-family: 'Inter', sans-serif;
+    color: #111;
+    line-height: 1.5;
+}
+
+.operator {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 32px 16px 64px;
+}
+
+.brand {
+    font-weight: 600;
+    color: #000;
+    text-decoration: none;
+}
+
+h1 {
+    margin: 12px 0 4px;
+    font-size: 28px;
+    font-weight: 500;
+    letter-spacing: -0.5px;
+}
+
+h2 {
+    margin: 0 0 16px;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.muted {
+    color: #00000080;
+    font-size: 13px;
+}
+
+.notice {
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: #E4F5E1;
+    font-size: 14px;
+}
+
+.notice.problem,
+.quality.problem {
+    background: #FCE6E6;
+    color: #8A1F1F;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 12px;
+    margin: 24px 0;
+}
+
+.stat,
+.card {
+    background: #FFFFFFB3;
+    border-radius: 16px;
+    padding: 20px;
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.stat-label {
+    font-size: 13px;
+    color: #00000080;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+}
+
+.stat-value.on {
+    color: #10A102;
+}
+
+.stat-value.off {
+    color: #00000066;
+}
+
+.card {
+    margin-bottom: 16px;
+}
+
+.queue-form {
+    display: grid;
+    gap: 16px;
+}
+
+.queue-form label,
+.queue-form legend {
+    font-size: 14px;
+    color: #000000B3;
+}
+
+.queue-form select,
+.queue-form input[type="number"] {
+    display: block;
+    width: 100%;
+    max-width: 360px;
+    margin-top: 6px;
+    padding: 12px;
+    border: 1px solid #00000033;
+    border-radius: 10px;
+    background: #FFF;
+    font: inherit;
+}
+
+fieldset {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    color: #111;
+}
+
+button {
+    padding: 12px 20px;
+    border: 0;
+    border-radius: 10px;
+    background: #000;
+    color: #FFF;
+    font: inherit;
+    cursor: pointer;
+    justify-self: start;
+}
+
+button.secondary {
+    background: #FFF;
+    color: #000;
+    border: 1px solid #00000033;
+}
+
+.job {
+    padding: 16px 0;
+    border-top: 1px solid #0000001A;
+}
+
+.job-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.badge {
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: #0000000D;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-in_review .badge {
+    background: #FFF1CC;
+}
+
+.status-approved .badge {
+    background: #E4F5E1;
+}
+
+.status-failed .badge,
+.status-rejected .badge {
+    background: #FCE6E6;
+}
+
+audio {
+    width: 100%;
+    max-width: 520px;
+}
+
+.facts,
+.quality,
+.prompt {
+    margin: 8px 0 0;
+    font-size: 13px;
+    color: #000000B3;
+}
+
+.quality.problem {
+    padding: 8px 12px;
+    border-radius: 8px;
+    overflow-wrap: anywhere;
+}
+
+details {
+    margin-top: 8px;
+    font-size: 13px;
+    color: #00000080;
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}

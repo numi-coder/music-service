@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music catalog - Resona AI</title>
+    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/operator.css}">
+</head>
+<body>
+<main class="operator">
+    <header class="operator-header">
+        <div>
+            <a class="brand" href="/dashboard">Resona AI</a>
+            <h1>Music catalog</h1>
+            <p class="muted">Internal page for the Resona team. Tracks reach stores only after you approve them.</p>
+        </div>
+    </header>
+
+    <p class="notice" th:if="${notice}" th:text="${notice}">Done.</p>
+    <p class="notice problem" th:if="${problem}" th:text="${problem}">Problem.</p>
+
+    <section class="stats">
+        <div class="stat">
+            <span class="stat-label">Generation</span>
+            <span class="stat-value" th:classappend="${enabled} ? 'on' : 'off'" th:text="${enabled} ? 'On' : 'Off'">Off</span>
+            <span class="muted" th:unless="${enabled}">Queued tracks wait until it is switched on.</span>
+        </div>
+        <div class="stat">
+            <span class="stat-label">Spent this month</span>
+            <span class="stat-value">$<span th:text="${#numbers.formatDecimal(spent, 1, 2, 'POINT')}">0.00</span></span>
+            <span class="muted">of $<span th:text="${#numbers.formatDecimal(budget, 1, 2, 'POINT')}">10.00</span> budget</span>
+        </div>
+        <div class="stat">
+            <span class="stat-label">Cost per track</span>
+            <span class="stat-value">$<span th:text="${#numbers.formatDecimal(costPerTrack, 1, 2, 'POINT')}">0.45</span></span>
+            <span class="muted"><span th:text="${trackSeconds}">180</span> seconds each</span>
+        </div>
+        <div class="stat">
+            <span class="stat-label">Queue</span>
+            <span class="stat-value" th:text="${queued}">0</span>
+            <span class="muted"><span th:text="${inReview}">0</span> to review · <span th:text="${approved}">0</span> approved</span>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2>Queue new tracks</h2>
+        <form method="post" th:action="@{/operator/music/queue}" class="queue-form">
+            <label>Atmosphere
+                <select name="atmosphere" required>
+                    <option th:each="atmosphere : ${atmospheres}" th:value="${atmosphere}"
+                            th:text="#{${'enum.MusicAtmosphere.' + atmosphere.name()}}">Warm &amp; Welcoming</option>
+                </select>
+            </label>
+            <fieldset>
+                <legend>Mood (one or two)</legend>
+                <label class="check" th:each="mood : ${moods}">
+                    <input type="checkbox" name="moods" th:value="${mood}">
+                    <span th:text="#{${'enum.MusicMood.' + mood.name()}}">Slow down and relax</span>
+                </label>
+            </fieldset>
+            <label>How many tracks
+                <input type="number" name="count" min="1" max="20" value="1" required>
+            </label>
+            <button type="submit">Add to queue</button>
+        </form>
+    </section>
+
+    <section class="card">
+        <h2>Tracks</h2>
+        <p class="muted" th:if="${#lists.isEmpty(jobs)}">No tracks yet.</p>
+
+        <article class="job" th:each="job : ${jobs}" th:classappend="${'status-' + #strings.toLowerCase(job.status)}">
+            <div class="job-head">
+                <span class="badge" th:text="${#strings.replace(job.status, '_', ' ')}">IN REVIEW</span>
+                <strong th:text="#{${'enum.MusicAtmosphere.' + job.atmosphere.name()}}">Warm &amp; Welcoming</strong>
+                <span class="muted">
+                    <th:block th:each="mood, s : ${job.mood}" th:text="#{${'enum.MusicMood.' + mood.name()}} + (${s.last} ? '' : ' + ')"></th:block>
+                    · take <span th:text="${job.variation + 1}">1</span>
+                    · #<span th:text="${job.id}">1</span>
+                </span>
+            </div>
+
+            <audio th:if="${job.fileUrl != null}" th:src="${job.fileUrl}" controls preload="none"></audio>
+
+            <p class="facts" th:if="${job.durationSeconds != null}">
+                <span th:text="${#numbers.formatDecimal(job.durationSeconds, 1, 0)} + ' s'">180 s</span>
+                <span th:if="${job.loudnessLufs != null}" th:text="'· ' + ${#numbers.formatDecimal(job.loudnessLufs, 1, 1, 'POINT')} + ' LUFS'">· -16.0 LUFS</span>
+                <span th:text="'· $' + ${#numbers.formatDecimal(job.costUsd, 1, 2, 'POINT')}">· $0.45</span>
+                <span th:text="'· ' + ${job.provider}">· elevenlabs</span>
+            </p>
+            <p class="quality" th:if="${job.qualityNotes != null}" th:text="${job.qualityNotes}">Passed the automatic checks.</p>
+            <p class="quality problem" th:if="${job.lastError != null}" th:text="${job.lastError}">Error</p>
+
+            <details>
+                <summary>Prompt</summary>
+                <p class="prompt" th:text="${job.prompt}">Prompt text</p>
+            </details>
+
+            <div class="actions">
+                <form method="post" th:if="${job.status.name() == 'IN_REVIEW'}" th:action="@{/operator/music/{id}/approve(id=${job.id})}">
+                    <button type="submit">Approve</button>
+                </form>
+                <form method="post" th:if="${job.status.name() == 'IN_REVIEW'}" th:action="@{/operator/music/{id}/reject(id=${job.id})}">
+                    <button type="submit" class="secondary">Reject</button>
+                </form>
+                <form method="post" th:if="${job.status.name() == 'FAILED'}" th:action="@{/operator/music/{id}/retry(id=${job.id})}">
+                    <button type="submit" class="secondary">Try again</button>
+                </form>
+                <form method="post" th:if="${job.status.name() == 'QUEUED'}" th:action="@{/operator/music/{id}/cancel(id=${job.id})}">
+                    <button type="submit" class="secondary">Remove from queue</button>
+                </form>
+            </div>
+        </article>
+    </section>
+</main>
+</body>
+</html>
