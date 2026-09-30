@@ -26,7 +26,31 @@ class LanguageSwitchTest {
     }
 
     @Test
-    @DisplayName("First visit: Russian browsers get Russian, everyone else English")
+    @DisplayName("First visit: Russian in the post-Soviet countries, English everywhere else")
+    void firstVisitFollowsTheCountry() throws Exception {
+        // Kazakhstan, Russia, Uzbekistan, Latvia - whatever the browser's language is
+        for (var address : new String[]{"2.72.0.1", "77.88.8.8", "84.54.64.1", "159.148.0.1"}) {
+            mockMvc.perform(get("/terms").header("X-Real-IP", address).header("Accept-Language", "en-US,en"))
+                .andExpect(view().name("pages/legal/terms_ru"));
+        }
+        // United States, Singapore - even with a Russian browser
+        for (var address : new String[]{"8.8.8.8", "139.180.184.254"}) {
+            mockMvc.perform(get("/terms").header("X-Real-IP", address).header("Accept-Language", "ru-RU,ru"))
+                .andExpect(view().name("pages/legal/terms"));
+        }
+    }
+
+    @Test
+    @DisplayName("The visitor's own choice beats the country")
+    void choiceBeatsCountry() throws Exception {
+        mockMvc.perform(get("/terms").header("X-Real-IP", "2.72.0.1").cookie(new Cookie(I18nConfig.LANGUAGE_COOKIE, "en")))
+            .andExpect(view().name("pages/legal/terms"));
+        mockMvc.perform(get("/terms").header("X-Real-IP", "8.8.8.8").param("lang", "ru"))
+            .andExpect(view().name("pages/legal/terms_ru"));
+    }
+
+    @Test
+    @DisplayName("Unknown country: Russian browsers get Russian, everyone else English")
     void firstVisitFollowsTheBrowser() throws Exception {
         mockMvc.perform(get("/terms").header("Accept-Language", "ru-RU,ru;q=0.9,en;q=0.8"))
             .andExpect(view().name("pages/legal/terms_ru"));

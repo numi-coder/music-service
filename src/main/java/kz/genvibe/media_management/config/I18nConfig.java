@@ -16,7 +16,8 @@ import java.time.Duration;
 import java.util.Locale;
 
 /**
- * Language choice: the browser's language on the first visit, then whatever the
+ * Language choice. On the first visit it follows the visitor's country: Russian in
+ * the post-Soviet countries, English everywhere else. After that it is whatever the
  * person picks with the EN / RU switch (any page link with ?lang=en or ?lang=ru),
  * remembered in a cookie.
  */
@@ -25,6 +26,10 @@ public class I18nConfig implements WebMvcConfigurer {
 
     static final String LANGUAGE_COOKIE = "resona_lang";
     static final String LANGUAGE_PARAMETER = "lang";
+    /** Set by nginx to the visitor's own address. */
+    static final String VISITOR_ADDRESS_HEADER = "X-Real-IP";
+
+    private final RussianFirstCountries russianFirstCountries = RussianFirstCountries.load();
 
     @Bean
     public MessageSource messageSource() {
@@ -40,8 +45,16 @@ public class I18nConfig implements WebMvcConfigurer {
             }
         };
         resolver.setCookieMaxAge(Duration.ofDays(365));
-        resolver.setDefaultLocaleFunction(request -> I18n.supported(request.getLocale()));
+        resolver.setDefaultLocaleFunction(this::firstVisitLanguage);
         return resolver;
+    }
+
+    /** When the country can't be told from the address, the browser's language decides. */
+    private Locale firstVisitLanguage(HttpServletRequest request) {
+        var address = request.getHeader(VISITOR_ADDRESS_HEADER);
+        return russianFirstCountries.contains(address != null ? address : request.getRemoteAddr())
+            .map(russianFirst -> russianFirst ? I18n.RUSSIAN : Locale.ENGLISH)
+            .orElseGet(() -> I18n.supported(request.getLocale()));
     }
 
     @Override
