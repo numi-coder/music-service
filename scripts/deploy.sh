@@ -26,7 +26,8 @@ cp -p "$JAR" "$BACKUPS/app-before-deploy-$TS.jar"
 
 wait_healthy() {
   for _ in $(seq 1 20); do
-    if [ "$(curl -sL -m 20 -o /dev/null -w '%{http_code}' "$HEALTH_URL")" = "200" ]; then return 0; fi
+    # A fresh visitor must get the whole sign-in page, not just a 200 with half a page.
+    if curl -sLf -m 20 "$HEALTH_URL" | grep -q '</html>'; then return 0; fi
     systemctl -q is-active resona || return 1
     sleep 30
   done
