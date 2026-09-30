@@ -1,6 +1,7 @@
 package kz.genvibe.media_management.templates;
 
 import org.junit.jupiter.api.BeforeEach;
+import kz.genvibe.media_management.config.I18n;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -11,6 +12,7 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 import org.thymeleaf.web.servlet.JakartaServletWebApplication;
 
+import java.util.Locale;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -29,6 +31,7 @@ class AuthPagesRenderingTest {
 
         engine = new SpringTemplateEngine();
         engine.setTemplateResolver(resolver);
+        engine.setTemplateEngineMessageSource(I18n.messageSource());
     }
 
     @Test
@@ -69,7 +72,7 @@ class AuthPagesRenderingTest {
 
     @Test
     void resetEmailContainsLink() {
-        var context = new Context();
+        var context = new Context(Locale.ENGLISH);
         context.setVariable("resetUrl", "https://weresona.com/auth/reset-password?token=abc");
 
         var html = engine.process("pages/email/reset-password", context);

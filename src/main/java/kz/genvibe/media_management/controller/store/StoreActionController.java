@@ -24,7 +24,7 @@ public class StoreActionController {
         RedirectAttributes redirectAttributes
     ) {
         storeService.addStore(appUser, dto);
-        redirectAttributes.addFlashAttribute("toast", "Store added successfully");
+        redirectAttributes.addFlashAttribute("toast", "toast.store_added");
         return "redirect:/stores";
     }
 

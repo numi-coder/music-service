@@ -54,7 +54,9 @@ public class JingleServiceImpl implements JingleService {
             var resetsOn = LocalDate.now().withDayOfMonth(1).plusMonths(1);
             throw new JingleCreationLimitExceededException(
                 "You’ve used all " + MONTHLY_LIMIT + " jingles for this month. The limit resets on "
-                    + resetsOn.format(DateTimeFormatter.ofPattern("d MMMM", Locale.ENGLISH)) + "."
+                    + resetsOn.format(DateTimeFormatter.ofPattern("d MMMM", Locale.ENGLISH)) + ".",
+                MONTHLY_LIMIT,
+                resetsOn
             );
         }
 

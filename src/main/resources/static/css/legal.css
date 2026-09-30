@@ -113,3 +113,26 @@ body {
         border-bottom: 1px solid #0000001A;
     }
 }
+
+.legal-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+}
+
+.lang-switch {
+    display: flex;
+    gap: 12px;
+    font-size: 13px;
+}
+
+.lang-switch a {
+    color: #00000080;
+    text-decoration: none;
+}
+
+.lang-switch a.active {
+    color: #000;
+    font-weight: 500;
+}

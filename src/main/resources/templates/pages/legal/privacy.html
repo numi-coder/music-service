@@ -10,7 +10,10 @@
 </head>
 <body>
 <main class="legal">
-    <a class="legal-brand" href="/">Resona AI</a>
+    <div class="legal-top">
+        <a class="legal-brand" href="/">Resona AI</a>
+        <div th:replace="~{fragments/i18n :: switch('lang-switch')}"></div>
+    </div>
 
     <h1>Privacy Policy</h1>
     <p class="updated">Last updated: 27 September 2026</p>
@@ -37,7 +40,7 @@
         <tr><td>Store details</td><td>Store name, address and the email address used for the store’s player account</td></tr>
         <tr><td>Announcements</td><td>The text you write for jingles and the audio generated from it</td></tr>
         <tr><td>Usage data</td><td>When store players are online and how many minutes of music they play; server logs with IP addresses and browser details</td></tr>
-        <tr><td>Cookies and device storage</td><td>A session cookie that keeps you signed in and protects forms; on store devices, the offline-music setting and any music the store chooses to save</td></tr>
+        <tr><td>Cookies and device storage</td><td>A session cookie that keeps you signed in and protects forms; a cookie that remembers your language; on store devices, the offline-music setting and any music the store chooses to save</td></tr>
         </tbody>
     </table>
     <p>We don’t use advertising or tracking cookies.</p>

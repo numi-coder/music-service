@@ -10,7 +10,10 @@
 </head>
 <body>
 <main class="legal">
-    <a class="legal-brand" href="/">Resona AI</a>
+    <div class="legal-top">
+        <a class="legal-brand" href="/">Resona AI</a>
+        <div th:replace="~{fragments/i18n :: switch('lang-switch')}"></div>
+    </div>
 
     <h1>Terms of Service</h1>
     <p class="updated">Last updated: 27 September 2026</p>

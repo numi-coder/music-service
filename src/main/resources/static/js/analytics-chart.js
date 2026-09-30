@@ -18,7 +18,7 @@
     new Chart(document.getElementById('weeklyPlaysChart'), {
         type: 'bar',
         data: {
-            labels: playsLabels.map(d => d.substring(0, 3)), // Сокращаем до Mon, Tue
+            labels: playsLabels.map(d => t('day.' + d)), // Сокращаем до Mon, Tue
             datasets: [{
                 data: playsValues,
                 backgroundColor: (ctx) => ctx.raw === maxVal ? ACCENT : GRAY,
@@ -48,7 +48,7 @@
         new Chart(document.getElementById('jingleTypeChart'), {
             type: 'doughnut',
             data: {
-                labels: jingleDistData.map(d => d.category),
+                labels: jingleDistData.map(d => t('category.' + d.category)),
                 datasets: [{
                     data: jingleDistData.map(d => d.percentage),
                     backgroundColor: ['#6366F1', '#F59E0B', '#10B981', '#EF4444'],

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{error/error :: head('Link expired - Resona AI')}"></head>
+<head th:replace="~{error/error :: head(#{error.410.title})}"></head>
 <body>
-<main th:replace="~{error/error :: card('Link expired', 'This confirmation link has expired. Please request a new confirmation email.')}"></main>
+<main th:replace="~{error/error :: card(#{error.410.heading}, #{error.410.message})}"></main>
 </body>
 </html>

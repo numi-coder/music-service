@@ -3,7 +3,7 @@
 <head th:fragment="head(title)">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${title} ?: 'Something went wrong - Resona AI'">Something went wrong - Resona AI</title>
+    <title th:text="${title} ?: #{error.generic.title}">Something went wrong - Resona AI</title>
     <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
@@ -54,10 +54,10 @@
 </head>
 <body>
 <main class="error-card" th:fragment="card(heading, message)">
-    <div class="code" th:if="${status != null}" th:text="'Error ' + ${status}">Error</div>
-    <h1 th:text="${heading} ?: 'Something went wrong'">Something went wrong</h1>
-    <p th:text="${message} ?: 'Please try again in a moment. If it keeps happening, contact us at numi@weresona.com.'">Please try again in a moment.</p>
-    <a href="/">Go to Resona AI</a>
+    <div class="code" th:if="${status != null}" th:text="#{error.code(${status})}">Error</div>
+    <h1 th:text="${heading} ?: #{error.generic.heading}">Something went wrong</h1>
+    <p th:text="${message} ?: #{error.generic.message}">Please try again in a moment.</p>
+    <a href="/" th:text="#{error.home}">Go to Resona AI</a>
 </main>
 </body>
 </html>

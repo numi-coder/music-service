@@ -2,6 +2,7 @@ package kz.genvibe.media_management.templates;
 
 import kz.genvibe.media_management.model.entity.Organization;
 import kz.genvibe.media_management.model.entity.Store;
+import kz.genvibe.media_management.config.I18n;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -29,6 +30,7 @@ class StorePlayerPageRenderingTest {
         resolver.setCharacterEncoding("UTF-8");
         var engine = new SpringTemplateEngine();
         engine.setTemplateResolver(resolver);
+        engine.setTemplateEngineMessageSource(I18n.messageSource());
 
         var organization = Organization.builder().companyName("Test Cafe").build();
         ReflectionTestUtils.setField(organization, "id", 3L);

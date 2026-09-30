@@ -206,7 +206,7 @@
 
     function handlePlayError(err) {
         if (err && err.name === 'NotAllowedError') {
-            showOverlay('Tap to start the music');
+            showOverlay(t('player.tap_to_start'));
         } else {
             console.warn('Playback failed', err);
             setTimeout(() => { if (wantsPlayback) playNext(1); }, 3000);
@@ -315,7 +315,7 @@
             queueJingle(command.slotId, norm(command.jingleUrl));
         } else if (command.type === 'FORCE_DISCONNECT') {
             stopPlayback();
-            showOverlay('This player was opened on another device. Tap to play here instead.');
+            showOverlay(t('player.other_device'));
         }
     }
 
@@ -438,11 +438,11 @@
             const head = await fetch(url, {method: 'HEAD', mode: 'cors'}).catch(() => null);
             total += head ? Number(head.headers.get('Content-Length') || 0) : 0;
         }
-        if (total > 0) offlineSizeEl.textContent = `(about ${formatBytes(Math.min(total, MAX_OFFLINE_BYTES))})`;
+        if (total > 0) offlineSizeEl.textContent = t('player.about_size', formatBytes(Math.min(total, MAX_OFFLINE_BYTES)));
     }
 
     function formatBytes(bytes) {
-        return bytes >= 1024 ** 3 ? (bytes / 1024 ** 3).toFixed(1) + ' GB' : Math.round(bytes / 1024 ** 2) + ' MB';
+        return bytes >= 1024 ** 3 ? (bytes / 1024 ** 3).toFixed(1) + ' ' + t('unit.gb') : Math.round(bytes / 1024 ** 2) + ' ' + t('unit.mb');
     }
 
     async function deleteSavedMusic() {
@@ -522,17 +522,17 @@
         if (!navigator.onLine || (!connected && reconnectAttempt >= 2)) {
             state = 'offline';
             text = savedTracks > 0
-                ? 'Offline · playing saved music'
-                : 'Offline · music will resume when the internet is back';
+                ? t('player.offline_saved')
+                : t('player.offline_waiting');
         } else if (!connected) {
             state = 'reconnecting';
-            text = 'Reconnecting…';
+            text = t('player.reconnecting');
         } else if (cacheProgress && cacheProgress.done < cacheProgress.total) {
             state = 'live';
-            text = `Live · saving music for offline (${cacheProgress.done} of ${cacheProgress.total})`;
+            text = t('player.live_saving', cacheProgress.done, cacheProgress.total);
         } else {
             state = 'live';
-            text = offlineEnabled && savedTracks > 0 ? `Live · ${savedTracks} of ${playlist.length} tracks saved for offline` : 'Live';
+            text = offlineEnabled && savedTracks > 0 ? t('player.live_saved', savedTracks, playlist.length) : t('player.live');
         }
 
         statusEl.textContent = text;
@@ -600,6 +600,6 @@
     if (!offlineEnabled) deleteSavedMusic();
     restoreInit();
     connect();
-    showOverlay('Tap to start the music');
+    showOverlay(t('player.tap_to_start'));
     updateStatus();
 })();

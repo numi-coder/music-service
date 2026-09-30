@@ -1,21 +1,21 @@
 <!DOCTYPE html>
 <html lang="ru"
       xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{layout/onboarding :: layout(~{::content}, 'Verify Email', 'verify-email.css', 'step-5.png')}">
+      th:replace="~{layout/onboarding :: layout(~{::content}, #{onboarding.email.title}, 'verify-email.css', 'step-5.png')}">
 
 <th:block th:fragment="content">
     <div class="verify-content">
         <div class="title-content">
-        <h1>We have prepared music for <span th:text="${companyName}">*Company name*</span> based on data</h1>
-        <p>Write your Email to get access to music.</p>
+        <h1 th:text="#{onboarding.email.heading(${companyName})}">We have prepared music for your company based on data</h1>
+        <p th:text="#{onboarding.email.hint}">Write your Email to get access to music.</p>
     </div>
         <form th:action="@{/auth/send-email}" method="post">
             <div class="form-group">
-                <input type="email" name="email" placeholder="Email" required maxlength="254">
+                <input type="email" name="email" placeholder="Email" th:placeholder="#{common.email}" required maxlength="254">
             </div>
             <hr>
-            <button class="btn-primary" type="submit">Continue</button>
-            <p class="legal-consent">By continuing you agree to our <a href="/terms" target="_blank">Terms of Service</a> and <a href="/privacy" target="_blank">Privacy Policy</a>.</p>
+            <button class="btn-primary" type="submit" th:text="#{common.continue}">Continue</button>
+            <p class="legal-consent" th:utext="#{onboarding.email.consent}">By continuing you agree to our Terms of Service and Privacy Policy.</p>
         </form>
     </div>
 </th:block>

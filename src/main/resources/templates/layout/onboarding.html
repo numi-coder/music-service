@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru"
+<html lang="en" th:lang="${#locale.language}"
       xmlns:th="http://www.thymeleaf.org"
       th:fragment="layout(content, pageTitle, pageCss, formImage)">
 
@@ -18,10 +18,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/onboarding/style.css}">
     <link rel="stylesheet" th:href="@{'/css/onboarding/' + ${pageCss}}">
+    <script th:replace="~{fragments/i18n :: texts}"></script>
     <script defer th:src="@{/js/onboarding.js}"></script>
 </head>
 
 <body>
+<div th:replace="~{fragments/i18n :: switch('lang-switch lang-switch--floating')}"></div>
 <div class="onboarding-wrapper">
     <div class="onboarding-container">
 

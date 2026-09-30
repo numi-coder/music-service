@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{error/error :: head('Account already exists - Resona AI')}"></head>
+<head th:replace="~{error/error :: head(#{error.409.title})}"></head>
 <body>
-<main th:replace="~{error/error :: card('Account already exists', 'An account with this email already exists. Please sign in instead.')}"></main>
+<main th:replace="~{error/error :: card(#{error.409.heading}, #{error.409.message})}"></main>
 </body>
 </html>

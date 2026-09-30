@@ -2,9 +2,9 @@
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout/base :: layout(
                     ~{::content},
-                    'Music - Resona AI',
+                    #{title.music},
                     'music.css',
-                    'Select music type',
+                    #{music.heading},
                     'music'
                     )}">
 
@@ -13,46 +13,46 @@
         <div class="music-wrapper" id="musicForm">
             <div class="atmosphere-cards">
                 <div class="music-subtitle">
-                    <h3>Atmosphere</h3>
-                    <p>Select the AI-generated atmosphere for all your stores. You can update this anytime.</p>
+                    <h3 th:text="#{music.atmosphere}">Atmosphere</h3>
+                    <p th:text="#{music.atmosphere.text}">Select the AI-generated atmosphere for all your stores. You can update this anytime.</p>
                 </div>
                 <div class="chips">
                     <label th:each="type : ${musicAtmospheres}" class="chip">
                         <input type="radio" name="atmosphere" th:value="${type}">
-                        <span th:text="${type.name}">Music Type</span>
+                        <span th:text="#{${'enum.MusicAtmosphere.' + type.name()}}">Music Type</span>
                     </label>
                 </div>
             </div>
             <div class="atmosphere-cards">
                 <div class="music-subtitle">
-                    <h3>Mood</h3>
-                    <p>Select the AI-generated mood for all your stores. You can update this anytime.</p>
+                    <h3 th:text="#{music.mood}">Mood</h3>
+                    <p th:text="#{music.mood.text}">Select the AI-generated mood for all your stores. You can update this anytime.</p>
                 </div>
                 <div class="chips">
                     <label th:each="type : ${musicMoods}" class="chip">
                         <input type="checkbox" name="mood" th:value="${type}">
-                        <span th:text="${type.name}">Music Type</span>
+                        <span th:text="#{${'enum.MusicMood.' + type.name()}}">Music Type</span>
                     </label>
                 </div>
                 <div class="selected-info">
-                    <p>Selected</p>
-                    <span id="selectedInfo" th:text="${organization.musicAtmosphere.name + ' / ' + organization.getMoodNames()}"></span>
+                    <p th:text="#{common.selected}">Selected</p>
+                    <span id="selectedInfo"><th:block th:text="#{${'enum.MusicAtmosphere.' + organization.musicAtmosphere.name()}}"></th:block> / <th:block th:each="m, s : ${organization.musicMood}" th:text="#{${'enum.MusicMood.' + m.name()}} + (${s.last} ? '' : ' + ')"></th:block></span>
                 </div>
             </div>
 
             <div class="music-container">
-                <h3>2-minute preview</h3>
+                <h3 th:text="#{music.preview}">2-minute preview</h3>
                 <div th:each="music : ${musics}" class="music-card">
 
                     <div class="music-icon">
                         <img th:src="${music.iconLocation}" class="music-icon-img" alt="">
                     </div>
                     <div class="music-info">
-                        <h3 th:text="${music.atmosphere.name}">Style Name</h3>
-                        <p th:text="${music.getMoodNames()}"></p>
+                        <h3 th:text="#{${'enum.MusicAtmosphere.' + music.atmosphere.name()}}">Style Name</h3>
+                        <p><th:block th:each="m, s : ${music.mood}" th:text="#{${'enum.MusicMood.' + m.name()}} + (${s.last} ? '' : ' + ')"></th:block></p>
                     </div>
 
-                    <div class="selected-badge">✓ Selected</div>
+                    <div class="selected-badge" th:text="#{music.selected_badge}">✓ Selected</div>
 
                     <div class="waveform-placeholder">
                         <canvas class="waveCanvas"></canvas>
@@ -69,10 +69,10 @@
             </div>
 
             <div class="action-footer">
-                <p class="footer-note">This style will be used as the default for all active stores</p>
+                <p class="footer-note" th:text="#{music.footer}">This style will be used as the default for all active stores</p>
                 <div class="footer-buttons">
-                    <a th:href="@{/dashboard}" class="btn-cancel">Cancel</a>
-                    <button type="submit" class="btn-save" id="saveButton" disabled>Select and save</button>
+                    <a th:href="@{/dashboard}" class="btn-cancel" th:text="#{common.cancel}">Cancel</a>
+                    <button type="submit" class="btn-save" id="saveButton" disabled th:text="#{music.save}">Select and save</button>
                 </div>
             </div>
         </div>

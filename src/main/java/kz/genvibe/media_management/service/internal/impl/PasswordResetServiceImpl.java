@@ -1,5 +1,6 @@
 package kz.genvibe.media_management.service.internal.impl;
 
+import kz.genvibe.media_management.config.I18n;
 import kz.genvibe.media_management.config.props.AppProps;
 import kz.genvibe.media_management.model.entity.AppUser;
 import kz.genvibe.media_management.model.entity.PasswordResetToken;
@@ -73,10 +74,10 @@ public class PasswordResetServiceImpl implements PasswordResetService {
             new PasswordResetToken(hash(token), appUser, Instant.now().plus(TOKEN_VALIDITY))
         );
 
-        var context = new Context();
+        var context = new Context(I18n.current());
         context.setVariable("resetUrl", appProps.getBaseUrl() + RESET_URL_PATH + token);
         var html = templateEngine.process("pages/email/reset-password", context);
-        mailService.sendHtmlMail(appUser.getEmail(), "Reset your Resona AI password", html);
+        mailService.sendHtmlMail(appUser.getEmail(), I18n.text("email.reset.subject"), html);
 
         log.info("Password reset link sent to user {}", appUser.getId());
     }

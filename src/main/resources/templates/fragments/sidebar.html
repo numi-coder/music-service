@@ -8,7 +8,7 @@
         <div class="sidebar-header">
             <div class="title-content">
                 <h2>Resona AI</h2>
-                <p>Admin Panel</p>
+                <p th:text="#{nav.admin_panel}">Admin Panel</p>
             </div>
             <hr>
         </div>
@@ -19,7 +19,7 @@
             <a th:href="@{/dashboard}" class="menu-item"
                th:classappend="${activePage == 'dashboard'} ? 'active'">
                 <span class="icon" th:replace="~{fragments/icons :: icon-dashboard}"></span>
-                Dashboard
+                [[#{nav.dashboard}]]
             </a>
 
             <!-- Остальные только для ADMIN -->
@@ -28,31 +28,31 @@
                 <a th:href="@{/music}" class="menu-item"
                    th:classappend="${activePage == 'music'} ? 'active'">
                     <span class="icon" th:replace="~{fragments/icons :: icon-music}"></span>
-                    Music Library
+                    [[#{nav.music}]]
                 </a>
 
                 <a th:href="@{/stores}" class="menu-item"
                    th:classappend="${activePage == 'stores'} ? 'active'">
                     <span class="icon" th:replace="~{fragments/icons :: icon-store}"></span>
-                    Stores
+                    [[#{nav.stores}]]
                 </a>
 
                 <a th:href="@{/jingles}" class="menu-item"
                    th:classappend="${activePage == 'jingles'} ? 'active'">
                     <span class="icon" th:replace="~{fragments/icons :: icon-jingle}"></span>
-                    Jingles
+                    [[#{nav.jingles}]]
                 </a>
 
                 <a th:href="@{/analytics}" class="menu-item"
                    th:classappend="${activePage == 'analytics'} ? 'active'">
                     <span class="icon" th:replace="~{fragments/icons :: icon-analytics}"></span>
-                    Analytics
+                    [[#{nav.analytics}]]
                 </a>
 
                 <a th:href="@{/settings}" class="menu-item"
                    th:classappend="${activePage == 'settings'} ? 'active'">
                     <span class="icon" th:replace="~{fragments/icons :: icon-settings}"></span>
-                    Settings
+                    [[#{nav.settings}]]
                 </a>
 
             </div>
@@ -61,10 +61,12 @@
         <div class="sidebar-footer">
             <a th:href="@{'mailto:numi@weresona.com'}" class="footer-action">
                 <span class="icon" th:replace="~{fragments/icons :: icon-help}"></span>
-                Help Center
+                [[#{nav.help}]]
             </a>
 
-            <div class="sidebar-legal"><a href="/terms" target="_blank">Terms</a> · <a href="/privacy" target="_blank">Privacy</a></div>
+            <div class="sidebar-legal"><a href="/terms" target="_blank" th:text="#{common.terms}">Terms</a> · <a href="/privacy" target="_blank" th:text="#{common.privacy}">Privacy</a></div>
+
+            <div th:replace="~{fragments/i18n :: switch('lang-switch')}"></div>
 
             <hr>
 
@@ -72,7 +74,7 @@
                 <span class="icon" th:replace="~{fragments/icons :: icon-account}"></span>
                 <div class="user-info">
                     <span class="user-name" th:text="${organization.companyName}">Company name</span>
-                    <span class="user-role">Admin</span>
+                    <span class="user-role" th:text="#{nav.role_admin}">Admin</span>
                 </div>
             </div>
 

@@ -12,7 +12,7 @@ public record JingleScheduleUpdateDto(
     @NotNull @Future LocalDateTime endDate,
     @NotNull JingleRepeatingTime repeatingTime
 ) {
-    @AssertTrue(message = "The end date must be after the start date")
+    @AssertTrue(message = "{validation.schedule.end_after_start}")
     public boolean isEndAfterStart() {
         return startDate == null || endDate == null || endDate.isAfter(startDate);
     }

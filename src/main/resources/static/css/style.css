@@ -477,3 +477,25 @@ input:valid {
         box-sizing: border-box;
     }
 }
+
+/* ===== Language switch (EN / RU) ===== */
+.lang-switch {
+    display: flex;
+    gap: 12px;
+    padding: 8px 12px 0;
+    font-size: 12px;
+}
+
+.lang-switch a {
+    color: #00000080;
+    text-decoration: none;
+}
+
+.lang-switch a:hover {
+    text-decoration: underline;
+}
+
+.lang-switch a.active {
+    color: #000;
+    font-weight: 500;
+}

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{error/error :: head('Page not found - Resona AI')}"></head>
+<head th:replace="~{error/error :: head(#{error.404.title})}"></head>
 <body>
-<main th:replace="~{error/error :: card('Page not found', 'This page doesn’t exist or the link is out of date.')}"></main>
+<main th:replace="~{error/error :: card(#{error.404.heading}, #{error.404.message})}"></main>
 </body>
 </html>

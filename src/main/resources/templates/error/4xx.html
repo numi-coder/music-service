@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{error/error :: head('Something went wrong - Resona AI')}"></head>
+<head th:replace="~{error/error :: head(#{error.generic.title})}"></head>
 <body>
-<main th:replace="~{error/error :: card('Something went wrong', 'We couldn’t complete that request. Please go back and try again.')}"></main>
+<main th:replace="~{error/error :: card(#{error.generic.heading}, #{error.4xx.message})}"></main>
 </body>
 </html>

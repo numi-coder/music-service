@@ -28,7 +28,7 @@
             }, duration);
         }
 
-        const flashToast = /*[[${toast}]]*/ null;
+        const flashToast = /*[[${toast == null ? null : (#messages.msgOrNull(toast) ?: toast)}]]*/ null;
         if (flashToast) showToast(flashToast);
     </script>
 </div>

@@ -2,9 +2,9 @@
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout/base :: layout(
                     ~{::content},
-                    'Dashboard - Resona AI',
+                    #{title.dashboard},
                     'dashboard.css',
-                    'Hello, team ' + ${organization.companyName},
+                    #{dashboard.hello(${organization.companyName})},
                     'enhanced-dashboard'
                     )}">
 
@@ -186,12 +186,12 @@
             </svg>
             <div class="music-icon">
                 <span class="icon" th:replace="~{fragments/icons :: icon-music}"></span>
-                <p>Selected Atmosphere</p>
+                <p th:text="#{stats.atmosphere}">Selected Atmosphere</p>
             </div>
-            <p class="stat-atmosphere"><span id="selectedInfo" th:text="${organization.musicAtmosphere.name}"</span></p>
-            <p class="stat-label">(modernity)</p>
-            <p class="stat-label">Synth, lead, bass guitar, rhythm guitar</p>
-            <p class="stat-label">BPM range: 110-115</p>
+            <p class="stat-atmosphere"><span id="selectedInfo" th:text="#{${'enum.MusicAtmosphere.' + organization.musicAtmosphere.name()}}"</span></p>
+            <p class="stat-label" th:text="#{stats.atmosphere.style}">(modernity)</p>
+            <p class="stat-label" th:text="#{stats.atmosphere.instruments}">Synth, lead, bass guitar, rhythm guitar</p>
+            <p class="stat-label" th:text="#{stats.atmosphere.bpm}">BPM range: 110-115</p>
         </div>
         </a>
         <a href="/stores">
@@ -252,10 +252,10 @@
 
             <div class="music-icon">
                 <span class="icon" th:replace="~{fragments/icons :: icon-store}"></span>
-                <p>Active Stores</p>
+                <p th:text="#{stats.active_stores}">Active Stores</p>
             </div>
             <p class="stat-value" th:text="${activeStores.size()}">15</p>
-            <p class="stat-sub" th:text="${stores.size() + ' total'}">15 total</p>
+            <p class="stat-sub" th:text="#{stats.total(${stores.size()})}">15 total</p>
         </div>
         </a>
         <a href="/analytics">
@@ -310,11 +310,11 @@
             </svg>
             <div class="music-icon">
                 <span class="icon" th:replace="~{fragments/icons :: icon-start}"></span>
-                <p>Daily Plays/minutes</p>
+                <p th:text="#{stats.daily_plays}">Daily Plays/minutes</p>
             </div>
             <p class="stat-value" th:text="${(dailyPlaysAndMinutes.totalPlays >= 0 ? '0': '')}">5,420</p>
             <div class="store-status">
-                <p class="stat-sub">total plays today</p>
+                <p class="stat-sub" th:text="#{stats.plays_today}">total plays today</p>
                 <span class="jingle-badge" th:text="${'↑' + dailyPlaysAndMinutes.totalPlaysGrowthPercentage + '%'}">
                 <svg width="7" height="7" viewBox="0 0 7 7" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M3.1204 0.0538223C3.3413 -0.0179511 3.57967 -0.0179305 3.80058 0.0538223L3.85966 0.0748184C3.99306 0.128242 4.09693 0.205133 4.17753 0.273549C4.26429 0.347206 4.35851 0.442327 4.45048 0.534291L6.7454 2.82921L6.78642 2.87462C6.97863 3.11024 6.96495 3.45767 6.7454 3.67736C6.51108 3.91167 6.13108 3.91167 5.89677 3.67736L4.06083 1.84142V6.39757L4.05741 6.4591C4.02657 6.76145 3.7712 6.99756 3.46073 6.99767C3.15017 6.99767 2.89441 6.76152 2.86356 6.4591L2.86063 6.39757V1.84093L1.02421 3.67736L0.978798 3.71886C0.743132 3.91114 0.39527 3.89705 0.175575 3.67736C-0.0439198 3.45766 -0.0576391 3.11022 0.134559 2.87462L0.175575 2.82921L2.4705 0.534291C2.56249 0.4423 2.65666 0.347227 2.74345 0.273549C2.83555 0.195356 2.95811 0.106603 3.1204 0.0538223Z" fill="#10A102"/>
@@ -326,7 +326,7 @@
         </a>
     </div>
 </div>
-    <p class="store-title">Stores</p>
+    <p class="store-title" th:text="#{nav.stores}">Stores</p>
     <div class="content-grid">
 
     <div th:each="store : ${stores}" th:attr="data-id=${store.id}">
@@ -339,7 +339,7 @@
 
                     <span class="status-badge"
                           th:classappend="${store.active ? 'active' : 'inactive'}"
-                          th:text="${store.active ? '⬤ Active' : '⬤ Inactive'}">
+                          th:text="${store.active} ? #{js.store.status.active} : #{store.status.inactive}">
                         </span>
                 </div>
 
@@ -347,13 +347,13 @@
                 <button th:if="${store.active}"
                         class="btn-link-store"
                         th:attr="onclick=|openLink(${store.id}, '${store.name}', '${store.musicLink}')|">
-                    View store
+                    [[#{js.store.view}]]
                 </button>
 
                 <button th:unless="${store.active}"
                         class="btn-link-store"
                         th:attr="onclick=|activateStore(${store.id}, '${store.name}')|">
-                    Activate store
+                    [[#{store.activate}]]
                 </button>
             </div>
 
@@ -372,10 +372,10 @@
 
             <div class="access-title">
                 <p th:if="${store.active}"
-                   th:text="|Last accessed: ${#temporals.format(store.lastAccessDate, 'dd MMM, yyyy', new java.util.Locale('en'))}|">
+                   th:text="#{js.store.last_accessed(${store.lastAccessDate != null ? #temporals.format(store.lastAccessDate, 'd MMM yyyy', #locale) : '—'})}">
                 </p>
                 <p th:unless="${store.active}">
-                    Activate this store to generate a music access link
+                    [[#{store.activate_hint}]]
                 </p>
             </div>
 
@@ -389,19 +389,19 @@
         <div class="modal-body">
 
             <div class="modal-header">
-                <h2>Store music link</h2>
+                <h2 th:text="#{store.link.title}">Store music link</h2>
                 <span class="close" onclick="closeLinkModal()">
                     <span class="icon" th:replace="~{fragments/icons :: icon-close}"></span>
                 </span>
             </div>
 
             <div class="modal-content">
-                <p class="status-active">Store is active now</p>
+                <p class="status-active" th:text="#{store.link.active}">Store is active now</p>
                 <p class="store-name" id="storeName"></p>
             </div>
 
             <div class="link-row">
-                <p class="label">Music access link</p>
+                <p class="label" th:text="#{store.link.label}">Music access link</p>
                 <div class="link-card">
                     <div id="storeLink" class="link-box"></div>
                     <button onclick="copyLink()" class="btn-copy">
@@ -413,11 +413,11 @@
             <div class="modal-actions">
                 <button onclick="regenerateLink()" class="btn-secondary">
                     <span th:replace="~{fragments/icons :: icon-regenerate}"></span>
-                    <span class="btn-title">Regenerate link</span>
+                    <span class="btn-title" th:text="#{store.link.regenerate}">Regenerate link</span>
                 </button>
                 <button onclick="copyLink()" class="btn-primary">
                     <span th:replace="~{fragments/icons :: icon-link}"></span>
-                    <span class="btn-title">Copy link</span>
+                    <span class="btn-title" th:text="#{store.link.copy}">Copy link</span>
                 </button>
             </div>
 
@@ -427,7 +427,7 @@
     <!-- TOAST -->
     <div id="toast" class="toast">
         <span class="icon" th:insert="~{fragments/icons :: icon-toast}"></span>
-        <span id="toastText">Link copied</span>
+        <span id="toastText" th:text="#{js.link.copied}">Link copied</span>
     </div>
     <script>
         let currentStoreId = null;
@@ -448,7 +448,7 @@
             const overlay = document.getElementById("linkModalOverlay");
 
             if (nameEl) nameEl.innerText = name || "";
-            if (linkEl) linkEl.innerText = link || "Loading...";
+            if (linkEl) linkEl.innerText = link || t('loading');
 
             if (modal) modal.style.display = "block";
             if (overlay) overlay.style.display = "block";
@@ -462,7 +462,7 @@
         function activateStore(id, name) {
             currentStoreId = id;
 
-            openLink(id, name, "Loading...");
+            openLink(id, name, t('loading'));
 
             const token = document.querySelector('meta[name="_csrf"]')?.content;
             const header = document.querySelector('meta[name="_csrf_header"]')?.content;
@@ -485,12 +485,12 @@
                     if (linkEl) linkEl.innerText = link;
 
                     updateStoreCard(id, name, link);
-                    showToast("Store activated!");
+                    showToast(t('store.activated'));
                 })
                 .catch(() => {
                     const linkEl = document.getElementById("storeLink");
-                    if (linkEl) linkEl.innerText = "Error";
-                    showToast("Activation failed");
+                    if (linkEl) linkEl.innerText = t('error');
+                    showToast(t('store.activation_failed'));
                 });
         }
 
@@ -500,25 +500,25 @@
 
             const badge = wrapper.querySelector(".status-badge");
             if (badge) {
-                badge.innerText = "⬤ Active";
+                badge.innerText = t('store.status.active');
                 badge.classList.remove("inactive");
                 badge.classList.add("active");
             }
 
             const btn = wrapper.querySelector(".btn-link-store");
             if (btn) {
-                btn.innerText = "View store";
+                btn.innerText = t('store.view');
                 btn.onclick = () => openLink(id, name, link);
             }
 
             const accessTitle = wrapper.querySelector(".access-title p");
             if (accessTitle) {
-                const date = new Date().toLocaleDateString("en-GB", {
+                const date = new Date().toLocaleDateString(RESONA_LOCALE, {
                     day: "numeric",
                     month: "short",
                     year: "numeric"
                 });
-                accessTitle.innerText = "Last accessed: " + date;
+                accessTitle.innerText = t('store.last_accessed', date);
             }
         }
 
@@ -537,21 +537,21 @@
                     currentLink = link;
                     const linkEl = document.getElementById("storeLink");
                     if (linkEl) linkEl.innerText = link;
-                    showToast("Link regenerated");
+                    showToast(t('link.regenerated'));
                 })
-                .catch(() => showToast("Failed to regenerate link"));
+                .catch(() => showToast(t('link.regenerate_failed')));
         }
 
         function copyLink() {
             if (!currentLink) {
-                showToast("Link not ready");
+                showToast(t('link.not_ready'));
                 return;
             }
 
             // ✅ современный способ
             if (navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(currentLink)
-                    .then(() => showToast("Link copied"))
+                    .then(() => showToast(t('link.copied')))
                     .catch(() => fallbackCopy());
             } else {
                 // ❗ если clipboard недоступен
@@ -572,9 +572,9 @@
 
             try {
                 document.execCommand("copy");
-                showToast("Link copied");
+                showToast(t('link.copied'));
             } catch (err) {
-                showToast("Copy failed");
+                showToast(t('link.copy_failed'));
             }
 
             document.body.removeChild(textarea);

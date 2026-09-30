@@ -2,27 +2,27 @@
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout/base :: layout(
                     ~{::content},
-                    'Dashboard - Resona AI',
+                    #{title.dashboard},
                     'dashboard.css',
-                    'Company Dashboard',
+                    #{dashboard.heading},
                     'dashboard'
                     )}">
 
 <th:block th:fragment="content">
-    <p class="subtitle">Manage your AI music and control which stores are live.</p>
+    <p class="subtitle" th:text="#{dashboard.subtitle}">Manage your AI music and control which stores are live.</p>
 
     <div class="dashboard-grid">
         <div class="card">
             <div class="card-body">
                 <div class="card-icon">
                     <span th:replace="~{fragments/icons :: icon-music}"></span></div>
-                <span class="card-status active">Selected</span>
+                <span class="card-status active" th:text="#{common.selected}">Selected</span>
             </div>
             <div class="card-header">
-                <h3>Music Management</h3>
-                <p>Choose the music style for your brand</p>
+                <h3 th:text="#{dashboard.music.title}">Music Management</h3>
+                <p th:text="#{dashboard.music.text}">Choose the music style for your brand</p>
             </div>
-            <a th:href="@{/music}" class="btn-action">Select music type</a>
+            <a th:href="@{/music}" class="btn-action" th:text="#{dashboard.music.action}">Select music type</a>
         </div>
 
         <div class="card">
@@ -31,14 +31,14 @@
                     <span th:replace="~{fragments/icons :: icon-store}"></span></div>
                 <span class="card-status"
                       th:classappend="${#lists.size(stores) > 0} ? 'active' : ''"
-                      th:text="${#lists.size(stores)} + ' stores'">
+                      th:text="#{dashboard.stores_count(${#lists.size(stores)})}">
                 </span>
             </div>
             <div class="card-header">
-                <h3>Stores</h3>
-                <p>Add and manage your store locations</p>
+                <h3 th:text="#{nav.stores}">Stores</h3>
+                <p th:text="#{dashboard.stores.text}">Add and manage your store locations</p>
             </div>
-            <a th:href="@{/stores}" class="btn-action">Add store</a>
+            <a th:href="@{/stores}" class="btn-action" th:text="#{dashboard.stores.action}">Add store</a>
         </div>
 
         <div class="card">
@@ -48,10 +48,10 @@
 <!--                <span class="card-status" th:text="${#lists.size(jingles)} + ' jingles'">0 generate</span>-->
             </div>
             <div class="card-header">
-                <h3>AI Voice Studio</h3>
-                <p>Add and manage audio messaging</p>
+                <h3 th:text="#{dashboard.voice.title}">AI Voice Studio</h3>
+                <p th:text="#{dashboard.voice.text}">Add and manage audio messaging</p>
             </div>
-            <a th:href="@{/jingles}" class="btn-action" th:disabled="${musicType == null}">Add audio messaging</a>
+            <a th:href="@{/jingles}" class="btn-action" th:disabled="${musicType == null}" th:text="#{dashboard.voice.action}">Add audio messaging</a>
         </div>
     </div>
 

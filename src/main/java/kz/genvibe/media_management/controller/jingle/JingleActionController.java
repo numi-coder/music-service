@@ -1,6 +1,7 @@
 package kz.genvibe.media_management.controller.jingle;
 
 import jakarta.validation.Valid;
+import kz.genvibe.media_management.config.I18n;
 import kz.genvibe.media_management.config.annotations.CurrentUser;
 import kz.genvibe.media_management.exception.JingleCreationLimitExceededException;
 import kz.genvibe.media_management.model.domain.dto.jingle.JingleApproveDto;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.net.URI;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Controller
@@ -55,7 +57,8 @@ public class JingleActionController {
         try {
             jingleService.createJingle(appUser, dto);
         } catch (JingleCreationLimitExceededException e) {
-            redirectAttributes.addFlashAttribute("jingleError", e.getMessage());
+            var resetsOn = e.getResetsOn().format(DateTimeFormatter.ofPattern("d MMMM", I18n.current()));
+            redirectAttributes.addFlashAttribute("jingleError", I18n.text("jingles.limit_reached", e.getLimit(), resetsOn));
         }
         return "redirect:/jingles";
     }

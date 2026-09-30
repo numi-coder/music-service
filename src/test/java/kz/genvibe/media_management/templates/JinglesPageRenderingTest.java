@@ -6,6 +6,7 @@ import kz.genvibe.media_management.model.enums.JingleCategory;
 import kz.genvibe.media_management.model.enums.JingleRepeatingTime;
 import kz.genvibe.media_management.model.enums.JingleVoice;
 import org.junit.jupiter.api.BeforeEach;
+import kz.genvibe.media_management.config.I18n;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -37,6 +38,7 @@ class JinglesPageRenderingTest {
 
         engine = new SpringTemplateEngine();
         engine.setTemplateResolver(resolver);
+        engine.setTemplateEngineMessageSource(I18n.messageSource());
     }
 
     @Test

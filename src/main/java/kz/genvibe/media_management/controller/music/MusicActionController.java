@@ -32,7 +32,7 @@ public class MusicActionController {
         RedirectAttributes redirectAttributes
     ) {
         organizationService.saveMusicTypes(appUser, atmosphere, moods);
-        redirectAttributes.addFlashAttribute("toast", "Music type successfully saved for your company");
+        redirectAttributes.addFlashAttribute("toast", "toast.music_saved");
         return "redirect:/dashboard";
     }
 

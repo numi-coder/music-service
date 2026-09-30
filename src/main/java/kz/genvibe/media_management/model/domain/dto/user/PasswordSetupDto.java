@@ -8,12 +8,12 @@ import jakarta.validation.constraints.Size;
 public record PasswordSetupDto(
     @Email String email,
 
-    @NotBlank(message = "Password is required")
-    @Size(min = 6, message = "Password must be at least 6 characters long")
-    @Pattern(regexp = ".*[0-9].*", message = "Password must contain at least one digit")
+    @NotBlank(message = "{validation.password.required}")
+    @Size(min = 6, message = "{validation.password.length}")
+    @Pattern(regexp = ".*[0-9].*", message = "{validation.password.digit}")
     String password,
 
-    @NotBlank(message = "Please confirm your password")
+    @NotBlank(message = "{validation.password.confirm}")
     String confirmPassword
 ) {
     public boolean passwordMatches() {

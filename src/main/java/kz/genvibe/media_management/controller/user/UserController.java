@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import kz.genvibe.media_management.config.I18n;
 import kz.genvibe.media_management.config.LandingPage;
 import kz.genvibe.media_management.config.annotations.CurrentUser;
 import kz.genvibe.media_management.controller.auth.PasswordSetupSession;
@@ -54,7 +55,7 @@ public class UserController {
             return "redirect:/auth/register";
         }
         if (!passwordSetupDto.passwordMatches()) {
-            redirectAttributes.addFlashAttribute("error", "Passwords do not match");
+            redirectAttributes.addFlashAttribute("error", I18n.text("js.password.mismatch"));
             return "redirect:/auth/register";
         }
 

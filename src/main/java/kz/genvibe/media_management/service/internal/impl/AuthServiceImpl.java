@@ -3,6 +3,7 @@ package kz.genvibe.media_management.service.internal.impl;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import kz.genvibe.media_management.config.I18n;
 import kz.genvibe.media_management.config.props.AppProps;
 import kz.genvibe.media_management.exception.VerificationLinkExpiredException;
 import kz.genvibe.media_management.model.entity.AppUser;
@@ -134,9 +135,9 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private void sendEmail(String verificationUrl, String email) {
-        var subject = "Email Address Verification";
+        var subject = I18n.text("email.verify.subject");
 
-        var context = new Context();
+        var context = new Context(I18n.current());
         context.setVariable("verificationUrl", verificationUrl);
         var html = templateEngine.process("pages/email/verify-email", context);
 
@@ -144,9 +145,9 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private void sendEmail(String verificationUrl, String email, String password) {
-        var subject = "Email Address Verification";
+        var subject = I18n.text("email.verify.subject");
 
-        var context = new Context();
+        var context = new Context(I18n.current());
         context.setVariable("verificationUrl", verificationUrl);
         context.setVariable("password", password);
         var html = templateEngine.process("pages/email/verify-store-email", context);

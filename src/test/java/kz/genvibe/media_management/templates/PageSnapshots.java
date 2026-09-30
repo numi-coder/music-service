@@ -7,6 +7,7 @@ import kz.genvibe.media_management.model.entity.analytics.JingleTypeDistribution
 import kz.genvibe.media_management.model.entity.analytics.MusicAnalyticsData;
 import kz.genvibe.media_management.model.entity.analytics.StoreAggregateAnalyticsData;
 import kz.genvibe.media_management.model.enums.*;
+import kz.genvibe.media_management.config.I18n;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -129,6 +130,11 @@ class PageSnapshots {
             "appUser", appUser, "musicAtmospheres", MusicAtmosphere.values()));
         write(out, "store-player", "pages/store-dashboard", common, Map.of(
             "store", stores.get(0), "activeJingles", List.of(jingle)));
+        write(out, "auth-login", "pages/auth/login", common, Map.of());
+        write(out, "onboarding-customer-feel", "pages/auth/onboarding/customer-feel", common, Map.of("spacePurposes", MusicMood.values()));
+        write(out, "onboarding-brand-identity", "pages/auth/onboarding/brand-identity", common, Map.of("brandIdentities", MusicAtmosphere.values()));
+        write(out, "onboarding-verify-email", "pages/auth/onboarding/verify-email", common, Map.of("companyName", "Marina Bay Coffee Co."));
+        write(out, "terms", "pages/legal/terms_ru", common, Map.of());
     }
 
     private static void fillAggregate(Object data) {
@@ -155,11 +161,13 @@ class PageSnapshots {
         resolver.setCharacterEncoding("UTF-8");
         var engine = new SpringTemplateEngine();
         engine.setTemplateResolver(resolver);
+        engine.setTemplateEngineMessageSource(I18n.messageSource());
 
         var servletContext = new MockServletContext();
         var exchange = JakartaServletWebApplication.buildApplication(servletContext)
             .buildExchange(new MockHttpServletRequest(servletContext), new MockHttpServletResponse());
-        var context = new WebContext(exchange);
+        // RESONA_SNAPSHOTS_LANG=ru renders the Russian pages.
+        var context = new WebContext(exchange, I18n.supported(Locale.forLanguageTag(System.getenv().getOrDefault("RESONA_SNAPSHOTS_LANG", "en"))));
         context.setVariables(common);
         context.setVariables(model);
 

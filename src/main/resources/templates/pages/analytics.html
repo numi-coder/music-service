@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{layout/base :: layout(~{::content}, 'Analytics - Resona AI', 'analytics.css', 'Analytics', 'analytics')}">
+      th:replace="~{layout/base :: layout(~{::content}, #{title.analytics}, 'analytics.css', #{nav.analytics}, 'analytics')}">
 <th:block th:fragment="content">
   <div class="analytics-page">
 
     <!-- Music Performance Section -->
     <div class="analytics-card">
-      <h3>Music Performance</h3>
+      <h3 th:text="#{analytics.music}">Music Performance</h3>
       <div class="chart-sub">
-        <p class="weekly-title">Weekly Plays</p>
+        <p class="weekly-title" th:text="#{analytics.weekly}">Weekly Plays</p>
         <canvas id="weeklyPlaysChart" height="160"></canvas>
       </div>
 
@@ -17,31 +17,31 @@
         <div class="stat-card">
           <div class="music-icon">
             <span class="icon" th:replace="~{fragments/icons :: icon-music}"></span>
-            <p>Selected Atmosphere</p>
+            <p th:text="#{stats.atmosphere}">Selected Atmosphere</p>
           </div>
-          <p class="stat-atmosphere"><span id="selectedInfo" th:text="${organization.musicAtmosphere.name}"</span></p>
-          <p class="stat-label">(modernity)</p>
-          <p class="stat-label">Synth, lead, bass guitar, rhythm guitar</p>
-          <p class="stat-label">BPM range: 110-115</p>
+          <p class="stat-atmosphere"><span id="selectedInfo" th:text="#{${'enum.MusicAtmosphere.' + organization.musicAtmosphere.name()}}"</span></p>
+          <p class="stat-label" th:text="#{stats.atmosphere.style}">(modernity)</p>
+          <p class="stat-label" th:text="#{stats.atmosphere.instruments}">Synth, lead, bass guitar, rhythm guitar</p>
+          <p class="stat-label" th:text="#{stats.atmosphere.bpm}">BPM range: 110-115</p>
         </div>
 
         <div class="stat-card">
           <div class="music-icon">
             <span class="icon" th:replace="~{fragments/icons :: icon-store}"></span>
-            <p>Active Stores</p>
+            <p th:text="#{stats.active_stores}">Active Stores</p>
           </div>
           <p class="stat-value" th:text="${activeStores.size()}">15</p>
-          <p class="stat-sub" th:text="${stores.size() + ' total'}">15 total</p>
+          <p class="stat-sub" th:text="#{stats.total(${stores.size()})}">15 total</p>
         </div>
 
         <div class="stat-card">
           <div class="music-icon">
             <span class="icon" th:replace="~{fragments/icons :: icon-start}"></span>
-            <p>Daily Plays/minutes</p>
+            <p th:text="#{stats.daily_plays}">Daily Plays/minutes</p>
           </div>
           <p class="stat-value" th:text="${#numbers.formatInteger(musicData.averageDailyPlays, 1, 'WHITESPACE')}">1,175</p>
           <div class="store-status">
-            <p class="stat-sub">total plays today</p>
+            <p class="stat-sub" th:text="#{stats.plays_today}">total plays today</p>
             <span class="status-badge" th:text="${'↑' + musicData.totalPlaysGrowthPercentage + '%'}">
                 12%
                 </span>
@@ -51,68 +51,68 @@
 
       <div class="stats-row" style="margin-top: 16px;">
         <div class="stat-item">
-          <p class="stat-label">Total Plays</p>
+          <p class="stat-label" th:text="#{analytics.total_plays}">Total Plays</p>
           <p class="stat-value" th:text="${#numbers.formatInteger(musicData.totalPlays, 1, 'WHITESPACE')}">8,228</p>
           <p class="stat-label"
              th:classappend="${musicData.totalPlaysGrowthPercentage >= 0} ? 'text-success' : 'text-danger'"
-             th:text="${(musicData.totalPlaysGrowthPercentage >= 0 ? '+' : '') + musicData.totalPlaysGrowthPercentage + '% this week'}">
+             th:text="${(musicData.totalPlaysGrowthPercentage >= 0 ? '+' : '') + musicData.totalPlaysGrowthPercentage} + #{analytics.pct_this_week}">
             +6.2%
           </p>
         </div>
         <div class="stat-item">
-          <p class="stat-label">Avg. Daily</p>
+          <p class="stat-label" th:text="#{analytics.avg_daily}">Avg. Daily</p>
           <p class="stat-value" th:text="${musicData.averageDailyPlays}"></p>
-          <p class="stat-sub">Across all stores</p>
+          <p class="stat-sub" th:text="#{analytics.across_stores}">Across all stores</p>
         </div>
         <div class="stat-item">
-          <p class="stat-label">Top Store</p>
+          <p class="stat-label" th:text="#{analytics.top_store}">Top Store</p>
           <p class="stat-value" th:text="${musicData.topStoreName}">Downtown 12</p>
-          <p class="stat-sub" th:text="${'+' + musicData.topStorePlaysGrowthPercentage + '% plays growth'}">+21.3%</p>
+          <p class="stat-sub" th:text="${'+' + musicData.topStorePlaysGrowthPercentage} + #{analytics.pct_growth}">+21.3%</p>
         </div>
       </div>
     </div>
 
     <!-- Aggregate Jingle Performance -->
     <div class="analytics-card">
-      <p class="section-title">Aggregate Jingle Performance</p>
+      <p class="section-title" th:text="#{analytics.jingles}">Aggregate Jingle Performance</p>
       <div class="stats-row">
         <div class="stat-item">
-          <p class="stat-label">Total Jingle Broadcasts</p>
+          <p class="stat-label" th:text="#{analytics.broadcasts_total}">Total Jingle Broadcasts</p>
           <p class="stat-value" th:text="${jingleData.totalJingleBroadcasts}">8,228</p>
-          <p class="stat-sub" th:text="${(jingleData.totalJingleBroadcastsWeekGrowth >= 0 ? '+' : '') + jingleData.totalJingleBroadcastsWeekGrowth + '% this week'}">+6.0%</p>
+          <p class="stat-sub" th:text="${(jingleData.totalJingleBroadcastsWeekGrowth >= 0 ? '+' : '') + jingleData.totalJingleBroadcastsWeekGrowth} + #{analytics.pct_this_week}">+6.0%</p>
         </div>
         <div class="stat-item">
-          <p class="stat-label">Completion Rate</p>
+          <p class="stat-label" th:text="#{analytics.completion}">Completion Rate</p>
           <p class="stat-value" th:text="${jingleData.completionRate + '%'}">98%</p>
-          <p class="stat-sub">Success vs Failed</p>
+          <p class="stat-sub" th:text="#{analytics.completion.text}">Success vs Failed</p>
         </div>
         <div class="stat-item">
-          <p class="stat-label">Most Played Jingle</p>
+          <p class="stat-label" th:text="#{analytics.most_played}">Most Played Jingle</p>
           <p class="stat-value" style="font-size: 1.1rem" th:text="${jingleData.mostPlayedJingleName}">Promo #1</p>
-          <p class="stat-sub" th:text="${jingleData.mostPlayedJinglePlayCount + ' broadcasts'}">21 plays</p>
+          <p class="stat-sub" th:text="#{analytics.broadcasts(${jingleData.mostPlayedJinglePlayCount})}">21 plays</p>
         </div>
         <div class="stat-item">
-          <p class="stat-label">Next Scheduled</p>
+          <p class="stat-label" th:text="#{analytics.next}">Next Scheduled</p>
           <p class="stat-value" style="font-size: 1.1rem" th:text="${jingleData.scheduledJingleTaskName}">Safety Jingle</p>
-          <p class="stat-sub" th:text="${jingleData.scheduledJingleTaskCount + ' tasks remaining today'}">25 tasks</p>
+          <p class="stat-sub" th:text="#{analytics.tasks(${jingleData.scheduledJingleTaskCount})}">25 tasks</p>
         </div>
       </div>
     </div>
 
     <!-- Jingle Types Distribution -->
     <div class="analytics-card">
-      <p class="section-title">Jingle Types & Performance Distribution (Weekly)</p>
+      <p class="section-title" th:text="#{analytics.distribution}">Jingle Types & Performance Distribution (Weekly)</p>
       <div class="grid-2">
         <div class="card">
           <div class="card-inner">
-            <p class="card-title">Plays by Jingle Type</p>
+            <p class="card-title" th:text="#{analytics.by_type}">Plays by Jingle Type</p>
             <canvas id="jingleTypeChart" height="200"></canvas>
           </div>
         </div>
         <!-- Сюда можно добавить график Top Jingles или другую метрику -->
         <div class="card">
           <div class="card-inner">
-            <p class="card-title">Daily Jingle Activity</p>
+            <p class="card-title" th:text="#{analytics.daily_activity}">Daily Jingle Activity</p>
             <canvas id="jingleDailyChart" height="200"></canvas>
           </div>
         </div>

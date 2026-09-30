@@ -2,9 +2,9 @@
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout/base :: layout(
                     ~{::content},
-                    'Dashboard - Resona AI',
+                    #{title.dashboard},
                     'store-dashboard.css',
-                    'Hello, team ' + ${organization.companyName},
+                    #{dashboard.hello(${organization.companyName})},
                     'dashboard'
                     )}">
 
@@ -143,28 +143,28 @@
     <div class="tap-to-start" id="tapToStart" role="button" tabindex="0">
         <div class="tap-to-start-card">
             <div class="tap-to-start-icon">▶</div>
-            <p class="tap-to-start-text" id="tapToStartText">Tap to start the music</p>
+            <p class="tap-to-start-text" id="tapToStartText" th:text="#{js.player.tap_to_start}">Tap to start the music</p>
             <p class="tap-to-start-hint" th:text="${organization.companyName}">Company</p>
         </div>
     </div>
 
-    <p class="player-status" id="playerStatus" data-state="reconnecting" aria-live="polite">Connecting…</p>
+    <p class="player-status" id="playerStatus" data-state="reconnecting" aria-live="polite" th:text="#{player.connecting}">Connecting…</p>
 
     <label class="offline-toggle">
         <input type="checkbox" id="offlineToggle">
-        <span>Save music on this device for offline play <span id="offlineSize"></span></span>
+        <span><th:block th:text="#{player.offline_toggle}">Save music on this device for offline play</th:block> <span id="offlineSize"></span></span>
     </label>
 
     <div class="install-app">
-        <button type="button" class="install-app-btn" id="installApp" hidden>Install as app</button>
-        <p class="install-help" id="installHelp" hidden>
-            On iPhone or iPad: in Safari, tap the <strong>Share</strong> button (the square with an arrow), then <strong>Add to Home Screen</strong>.
+        <button type="button" class="install-app-btn" id="installApp" hidden th:text="#{player.install}">Install as app</button>
+        <p class="install-help" id="installHelp" hidden th:utext="#{player.install_help}">
+            On iPhone or iPad: in Safari, tap the Share button (the square with an arrow), then Add to Home Screen.
         </p>
     </div>
 
     <!-- ACTIVE JINGLES - Список активных джинглов -->
     <div class="active-jingles-card">
-        <h2>Active Jingles</h2>
+        <h2 th:text="#{player.active_jingles}">Active Jingles</h2>
 
         <div th:each="jingle : ${activeJingles}" class="jingle-row">
             <div class="jingle-info">
@@ -174,14 +174,14 @@
                     <span>·</span>
                     <span>0:15</span>
                     <span>·</span>
-                    <span>Start date <th:block th:text="${#temporals.format(jingle.startDate, 'dd.MM.yyyy')}">06.04.2026</th:block>/End date <th:block th:text="${#temporals.format(jingle.endDate, 'dd.MM.yyyy')}">07.04.2026</th:block></span>
+                    <span th:text="#{jingle.dates(${#temporals.format(jingle.startDate, 'dd.MM.yyyy')}, ${#temporals.format(jingle.endDate, 'dd.MM.yyyy')})}">Start date 06.04.2026/End date 07.04.2026</span>
                 </div>
                 <div class="jingle-repeating">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2">
                         <circle cx="12" cy="12" r="10"/>
                         <polyline points="12 6 12 12 16 14"/>
                     </svg>
-                    <span>Repeating: <th:block th:text="${jingle.repeatingTime.name}">16:00</th:block></span>
+                    <span th:with="every=#{${'enum.JingleRepeatingTime.' + jingle.repeatingTime.name()}}" th:text="#{jingle.repeating(${every})}">Repeating: every hour</span>
                 </div>
             </div>
             <button class="btn-pause"
@@ -195,14 +195,14 @@
                     <rect x="14" y="4" width="4" height="16"/>
                 </svg>
 
-                <span th:text="${jingle.requestedToPause} ? 'Requested' : 'Request to Pause'">
+                <span th:text="${jingle.requestedToPause} ? #{js.player.requested} : #{player.request_pause}">
                     Request to Pause
                 </span>
             </button>
         </div>
 
         <div th:if="${#lists.isEmpty(activeJingles)}" style="text-align:center; padding: 32px; color: #888; font-size: 14px;">
-            No active jingles yet.
+            [[#{player.no_jingles}]]
         </div>
     </div>
 
@@ -237,8 +237,8 @@
             })
                 .then(response => {
                     if (response.ok) {
-                        showToast("Pause request sent", "success");
-                        if (textSpan) textSpan.innerText = "Requested";
+                        showToast(t('player.pause_sent'), "success");
+                        if (textSpan) textSpan.innerText = t('player.requested');
                     } else {
                         button.disabled = false;
                         button.style.opacity = '1';

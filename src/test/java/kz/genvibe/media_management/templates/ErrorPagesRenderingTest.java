@@ -1,5 +1,6 @@
 package kz.genvibe.media_management.templates;
 
+import kz.genvibe.media_management.config.I18n;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -7,6 +8,7 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
+import java.util.Locale;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -25,6 +27,7 @@ class ErrorPagesRenderingTest {
 
         engine = new SpringTemplateEngine();
         engine.setTemplateResolver(resolver);
+        engine.setTemplateEngineMessageSource(I18n.messageSource());
     }
 
     @ParameterizedTest
@@ -39,7 +42,7 @@ class ErrorPagesRenderingTest {
         "error/error, 502, /x, Please try again in a moment"
     })
     void rendersFriendlyErrorPage(String template, Integer status, String path, String expectedText) {
-        var context = new Context();
+        var context = new Context(Locale.ENGLISH);
         context.setVariables(Map.of());
         if (status != null) context.setVariable("status", status);
         if (path != null) context.setVariable("path", path);

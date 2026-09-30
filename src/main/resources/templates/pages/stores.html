@@ -2,15 +2,15 @@
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout/base :: layout(
                     ~{::content},
-                    'Stores - Resona AI',
+                    #{title.stores},
                     'stores.css',
-                    'Stores',
+                    #{nav.stores},
                     'stores'
                     )}">
 
 <th:block th:fragment="content">
 
-    <p class="subtitle">Manage all stores under your company</p>
+    <p class="subtitle" th:text="#{stores.subtitle}">Manage all stores under your company</p>
 
     <!-- EMPTY STATE -->
     <div th:if="${#lists.isEmpty(stores)}" class="empty-state-container">
@@ -20,13 +20,13 @@
             </div>
 
             <div class="empty-icon">
-                <h3>No stores added yet</h3>
-                <p>Add your first store to start playing music</p>
+                <h3 th:text="#{stores.empty.title}">No stores added yet</h3>
+                <p th:text="#{stores.empty.text}">Add your first store to start playing music</p>
             </div>
 
             <button class="btn-add-large" onclick="openModal()">
                 <span th:replace="~{fragments/icons :: icon-plus}"></span>
-                <span class="btn-title">Add new store</span>
+                <span class="btn-title" th:text="#{stores.add_new}">Add new store</span>
             </button>
         </div>
     </div>
@@ -45,7 +45,7 @@
 
                         <span class="status-badge"
                               th:classappend="${store.active ? 'active' : 'inactive'}"
-                              th:text="${store.active ? '⬤ Active' : '⬤ Inactive'}">
+                              th:text="${store.active} ? #{js.store.status.active} : #{store.status.inactive}">
                         </span>
                     </div>
 
@@ -53,13 +53,13 @@
                     <button th:if="${store.active}"
                             class="btn-link-store"
                             th:attr="onclick=|openLink(${store.id}, '${store.name}', '${store.musicLink}')|">
-                        View store
+                        [[#{js.store.view}]]
                     </button>
 
                     <button th:unless="${store.active}"
                             class="btn-link-store"
                             th:attr="onclick=|activateStore(${store.id}, '${store.name}')|">
-                        Activate store
+                        [[#{store.activate}]]
                     </button>
                 </div>
 
@@ -78,10 +78,10 @@
 
                 <div class="access-title">
                     <p th:if="${store.active}"
-                       th:text="|Last accessed: ${#temporals.format(store.lastAccessDate, 'dd MMM, yyyy', new java.util.Locale('en'))}|">
+                       th:text="#{js.store.last_accessed(${store.lastAccessDate != null ? #temporals.format(store.lastAccessDate, 'd MMM yyyy', #locale) : '—'})}">
                     </p>
                     <p th:unless="${store.active}">
-                        Activate this store to generate a music access link
+                        [[#{store.activate_hint}]]
                     </p>
                 </div>
 
@@ -91,7 +91,7 @@
         <!-- ADD CARD BUTTON -->
         <button class="btn-add-card" onclick="openModal()">
             <span th:replace="~{fragments/icons :: icon-plus}"></span>
-            <span class="btn-title">Add new store</span>
+            <span class="btn-title" th:text="#{stores.add_new}">Add new store</span>
         </button>
 
     </div>
@@ -102,7 +102,7 @@
     <div id="modal" class="modal add-store-modal">
         <div class="modal-body">
             <div class="modal-header">
-                <h2>Add store</h2>
+                <h2 th:text="#{dashboard.stores.action}">Add store</h2>
                 <span class="close" onclick="closeModal()">
                     <span class="icon" th:replace="~{fragments/icons :: icon-close}"></span>
                 </span>
@@ -110,21 +110,21 @@
 
             <form th:action="@{/api/stores}" method="post">
                 <div class="form-group">
-                    <input type="text" name="name" placeholder="Store name" required>
+                    <input type="text" name="name" placeholder="Store name" th:placeholder="#{stores.form.name}" required>
                 </div>
 
                 <div class="form-group">
-                    <label>Location (optional)</label>
-                    <input type="text" name="location" placeholder="123 Main St., City">
+                    <label th:text="#{stores.form.location}">Location (optional)</label>
+                    <input type="text" name="location" placeholder="123 Main St., City" th:placeholder="#{stores.form.location_placeholder}">
                 </div>
 
                 <div class="form-group">
-                    <label>Store Play link will be sent to their email</label>
+                    <label th:text="#{stores.form.email}">Store Play link will be sent to their email</label>
                     <input type="email" name="email" placeholder="store@email.com" required>
                 </div>
 
                 <button type="submit" class="btn-save-store" id="saveStoreBtn" disabled>
-                    Save store
+                    [[#{stores.form.save}]]
                 </button>
             </form>
         </div>
@@ -137,19 +137,19 @@
         <div class="modal-body">
 
             <div class="modal-header">
-                <h2>Store music link</h2>
+                <h2 th:text="#{store.link.title}">Store music link</h2>
                 <span class="close" onclick="closeLinkModal()">
                     <span class="icon" th:replace="~{fragments/icons :: icon-close}"></span>
                 </span>
             </div>
 
             <div class="modal-content">
-                <p class="status-active">Store is active now</p>
+                <p class="status-active" th:text="#{store.link.active}">Store is active now</p>
                 <p class="store-name" id="storeName"></p>
             </div>
 
                 <div class="link-row">
-                    <p class="label">Music access link</p>
+                    <p class="label" th:text="#{store.link.label}">Music access link</p>
                     <div class="link-card">
                         <div id="storeLink" class="link-box"></div>
                         <button onclick="copyLink()" class="btn-copy">
@@ -161,11 +161,11 @@
             <div class="modal-actions">
                 <button onclick="regenerateLink()" class="btn-secondary">
                     <span th:replace="~{fragments/icons :: icon-regenerate}"></span>
-                    <span class="btn-title">Regenerate link</span>
+                    <span class="btn-title" th:text="#{store.link.regenerate}">Regenerate link</span>
                 </button>
                 <button onclick="copyLink()" class="btn-primary">
                     <span th:replace="~{fragments/icons :: icon-link}"></span>
-                    <span class="btn-title">Copy link</span>
+                    <span class="btn-title" th:text="#{store.link.copy}">Copy link</span>
                 </button>
             </div>
 
@@ -175,7 +175,7 @@
     <!-- TOAST -->
     <div id="toast" class="toast">
         <span class="icon" th:insert="~{fragments/icons :: icon-toast}"></span>
-        <span id="toastText">Link copied</span>
+        <span id="toastText" th:text="#{js.link.copied}">Link copied</span>
     </div>
     <script>
         const form = document.querySelector('#modal form');
@@ -208,7 +208,7 @@
             currentStoreId = id;
 
             document.getElementById("storeName").innerText = name;
-            document.getElementById("storeLink").innerText = link || "Loading...";
+            document.getElementById("storeLink").innerText = link || t('loading');
 
             currentLink = link || "";
 
@@ -226,8 +226,8 @@
             const token = document.querySelector('meta[name="_csrf"]').content;
             const header = document.querySelector('meta[name="_csrf_header"]').content;
 
-            document.getElementById("storeLink").innerText = "Loading...";
-            openLink(id, name, "Loading...");
+            document.getElementById("storeLink").innerText = t('loading');
+            openLink(id, name, t('loading'));
 
             try {
                 // 1. Activate (response body is the music access link)
@@ -244,10 +244,10 @@
                 document.getElementById("storeLink").innerText = link;
                 markStoreAsActive(id);
                 updateStoreLink(id, name, link);
-                showToast("Store activated!");
+                showToast(t('store.activated'));
             } catch (error) {
                 console.error(error);
-                showToast("Error activating store");
+                showToast(t('store.activation_error'));
             }
         }
         function markStoreAsActive(id) {
@@ -257,7 +257,7 @@
 
             const badge = card.querySelector(".status-badge");
 
-            badge.innerText = "⬤ Active";
+            badge.innerText = t('store.status.active');
             badge.classList.remove("inactive");
             badge.classList.add("active");
         }
@@ -271,7 +271,7 @@
             if (oldBtn) {
                 const newBtn = document.createElement("button");
                 newBtn.className = "btn-link-store";
-                newBtn.innerText = "View store";
+                newBtn.innerText = t('store.view');
                 newBtn.onclick = () => openLink(id, name, link);
                 container.replaceChild(newBtn, oldBtn);
             }
@@ -314,22 +314,22 @@
                         link
                     );
 
-                    showToast("Link regenerated");
+                    showToast(t('link.regenerated'));
                 })
                 .catch(err => {
                     console.error(err);
-                    showToast("Failed to regenerate link");
+                    showToast(t('link.regenerate_failed'));
                 });
         }
         function copyLink() {
             if (!currentLink) {
-                showToast("Link not ready");
+                showToast(t('link.not_ready'));
                 return;
             }
 
             if (navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(currentLink)
-                    .then(() => showToast("Link copied"))
+                    .then(() => showToast(t('link.copied')))
                     .catch(() => fallbackCopy());
             } else {
                 fallbackCopy();
@@ -350,9 +350,9 @@
 
             try {
                 document.execCommand("copy");
-                showToast("Link copied");
+                showToast(t('link.copied'));
             } catch (err) {
-                showToast("Copy failed");
+                showToast(t('link.copy_failed'));
             }
 
             document.body.removeChild(textarea);

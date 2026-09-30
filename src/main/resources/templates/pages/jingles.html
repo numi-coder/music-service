@@ -2,16 +2,16 @@
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout/base :: layout(
                     ~{::content},
-                    'Jingles - Resona AI',
+                    #{title.jingles},
                     'jingles.css',
-                    'Create jingles',
+                    #{jingles.heading},
                     'jingles'
                     )}">
 
 <th:block th:fragment="content">
     <div class="jingles-page">
         <p class="subtitle"
-           th:text="|Monthly generation limit: ${jinglesUsedThisMonth} of ${monthlyJingleLimit} used this month|">
+           th:text="#{jingles.limit(${jinglesUsedThisMonth}, ${monthlyJingleLimit})}">
             Monthly generation limit: 20 jingles
         </p>
         <p class="limit-message" th:if="${jingleError}" th:text="${jingleError}">Limit reached</p>
@@ -20,8 +20,8 @@
             <form th:action="@{/api/jingles}" method="post" id="jingleForm">
 
                 <div class="voice-selector">
-                    <h3>Compose Announcement</h3>
-                    <p>Voice</p>
+                    <h3 th:text="#{jingles.compose}">Compose Announcement</h3>
+                    <p th:text="#{jingles.voice}">Voice</p>
                     <div class="voice-grid">
                         <label th:each="voice : ${jingleVoice}"
                                th:classappend="${voice.name() == 'RACHEL'} ? 'active' : ''"
@@ -32,12 +32,12 @@
                                    style="display: none;">
                             <div class="voice-info">
                                 <span class="voice-name" th:text="${voice.name}">Rachel</span>
-                                <span class="voice-desc" th:text="${voice.description}">Calm & Clear</span>
+                                <span class="voice-desc" th:text="#{${'enum.JingleVoice.' + voice.name() + '.desc'}}">Calm & Clear</span>
                             </div>
                             <button type="button" class="voice-sample"
                                     th:data-voice="${voice.name()}"
-                                    th:title="|Listen to ${voice.name}|"
-                                    th:aria-label="|Listen to ${voice.name}|">▶</button>
+                                    th:title="#{jingles.listen_to(${voice.name})}"
+                                    th:aria-label="#{jingles.listen_to(${voice.name})}">▶</button>
                         </label>
                     </div>
                 </div>
@@ -46,25 +46,25 @@
                     <!-- CATEGORY -->
                     <div class="select-wrapper custom-dropdown">
                         <div class="custom-select-header">
-                            Select Jingle Category
+                            [[#{jingles.category}]]
                             <span class="icon" th:replace="~{fragments/icons :: icon-select}"></span>
                         </div>
 
                         <ul class="custom-select-options">
                             <li th:each="cat : ${jingleCategory}"
                                 th:data-value="${cat.name()}"
-                                th:text="${cat.name}">Category</li>
+                                th:text="#{${'enum.JingleCategory.' + cat.name()}}">Category</li>
                         </ul>
 
                         <select name="category" required style="display:none;">
-                            <option value="" disabled selected>Select Jingle Category</option>
+                            <option value="" disabled selected th:text="#{jingles.category}">Select Jingle Category</option>
                             <option th:each="cat : ${jingleCategory}"
                                     th:value="${cat.name()}"
-                                    th:text="${cat.name}"></option>
+                                    th:text="#{${'enum.JingleCategory.' + cat.name()}}"></option>
                         </select>
 
                         <div class="speed-range">
-                            <span class="speed-text">Slower</span>
+                            <span class="speed-text" th:text="#{jingles.slower}">Slower</span>
 
                             <input type="range"
                                    name="speed"
@@ -74,7 +74,7 @@
                                    value="1"
                                    id="speedRange">
 
-                            <span class="speed-text">Faster</span>
+                            <span class="speed-text" th:text="#{jingles.faster}">Faster</span>
 
                             <!-- 👇 ВОТ ЭТО ДОБАВЬ -->
                             <span id="speedValue">1.00</span>
@@ -84,7 +84,7 @@
 
                         <!-- Trigger -->
                         <div class="date-display">
-                            <span id="dateLabel">Select Start/End Date</span>
+                            <span id="dateLabel" th:text="#{jingles.dates}">Select Start/End Date</span>
                             <span class="icon" th:replace="~{fragments/icons :: icon-select}"></span>
                         </div>
 
@@ -100,13 +100,13 @@
 
                             <!-- Calendar -->
                             <div class="calendar-weekdays">
-                                <div>Su</div>
-                                <div>Mo</div>
-                                <div>Tu</div>
-                                <div>We</div>
-                                <div>Th</div>
-                                <div>Fr</div>
-                                <div>Sa</div>
+                                <div th:text="#{jingles.day.su}">Su</div>
+                                <div th:text="#{jingles.day.mo}">Mo</div>
+                                <div th:text="#{jingles.day.tu}">Tu</div>
+                                <div th:text="#{jingles.day.we}">We</div>
+                                <div th:text="#{jingles.day.th}">Th</div>
+                                <div th:text="#{jingles.day.fr}">Fr</div>
+                                <div th:text="#{jingles.day.sa}">Sa</div>
                             </div>
                             <div id="calendarGrid" class="calendar-grid"></div>
 
@@ -126,8 +126,8 @@
                                 <span id="rangePreview">--</span>
 
                                 <div class="footer-actions">
-                                    <button type="button" class="btn-cancel">Cancel</button>
-                                    <button type="button" class="btn-apply">Apply</button>
+                                    <button type="button" class="btn-cancel" th:text="#{common.cancel}">Cancel</button>
+                                    <button type="button" class="btn-apply" th:text="#{jingles.apply}">Apply</button>
                                 </div>
                             </div>
                         </div>
@@ -139,43 +139,44 @@
                     <!-- REPEATING -->
                     <div class="select-wrapper custom-dropdown">
                         <div class="custom-select-header">
-                            Repeating Time
+                            [[#{jingles.repeating_time}]]
                             <span class="icon" th:replace="~{fragments/icons :: icon-select}"></span>
                         </div>
 
                         <ul class="custom-select-options">
                             <li th:each="time : ${jingleRepeatingTime}"
                                 th:data-value="${time.name()}"
-                                th:text="${time.name}">Every hour</li>
+                                th:text="#{${'enum.JingleRepeatingTime.' + time.name()}}">Every hour</li>
                         </ul>
 
                         <select name="repeatingTime" required style="display:none;">
-                            <option value="" disabled selected>Repeating Time</option>
+                            <option value="" disabled selected th:text="#{jingles.repeating_time}">Repeating Time</option>
                             <option th:each="time : ${jingleRepeatingTime}"
                                     th:value="${time.name()}"
-                                    th:text="${time.name}"></option>
+                                    th:text="#{${'enum.JingleRepeatingTime.' + time.name()}}"></option>
                         </select>
                     </div>
 
                 </div>
                 <div class="form-group no-margin">
-                    <p>Announcement Text</p>
+                    <p th:text="#{jingles.text}">Announcement Text</p>
                     <textarea name="announcementText" maxlength="500" required
-                              placeholder="e.g. Welcome to our store! Today's special offer: 20% off all items. Enjoy your visit."></textarea>
-                    <div class="char-counter">0/500 characters</div>
+                              placeholder="e.g. Welcome to our store! Today's special offer: 20% off all items. Enjoy your visit."
+                              th:placeholder="#{jingles.text_placeholder}"></textarea>
+                    <div class="char-counter" th:text="#{js.jingles.chars(0)}">0/500 characters</div>
                 </div>
 
                 <button type="submit" class="btn-generate"
                         th:disabled="${jinglesUsedThisMonth >= monthlyJingleLimit}"
-                        th:title="${jinglesUsedThisMonth >= monthlyJingleLimit} ? 'Monthly limit reached' : null">
+                        th:title="${jinglesUsedThisMonth >= monthlyJingleLimit} ? #{jingles.limit_reached_title} : null">
                     <span class="icon" th:replace="~{fragments/icons :: icon-generate}"></span>
-                    Generate Jingle
+                    [[#{jingles.generate}]]
                 </button>
             </form>
         </section>
 
         <section class="history-section">
-            <h3>Jingle History</h3>
+            <h3 th:text="#{jingles.history}">Jingle History</h3>
             <div class="jingle-list">
                 <div th:each="jingle : ${jingleHistory}" class="jingle-item">
                     <div class="item-container">
@@ -190,7 +191,7 @@
                             <p class="jingle-title" th:text="${jingle.announcementText}">Text</p>
 
                             <p class="jingle-meta"
-                               th:text="${jingle.voice + ' · ' + '…' + ' · Start date ' + #temporals.format(jingle.startDate, 'dd.MM.yyyy') + '/ End date ' + #temporals.format(jingle.endDate, 'dd.MM.yyyy')}" th:attr="data-src=${jingle.fileUrl}">
+                               th:text="${jingle.voice.name + ' · … · '} + #{jingle.dates(${#temporals.format(jingle.startDate, 'dd.MM.yyyy')}, ${#temporals.format(jingle.endDate, 'dd.MM.yyyy')})}" th:attr="data-src=${jingle.fileUrl}">
                                 Voice · Duration · Date
                             </p>
 
@@ -199,7 +200,7 @@
                                     <path d="M7.42708 3.79053e-06C11.4208 0.000556932 14.6613 3.24056 14.6615 7.23438C14.6613 11.2285 11.42 14.4688 7.42578 14.4688L7.14583 14.4635C5.74839 14.4093 4.39396 13.9508 3.2487 13.1413C2.0271 12.2776 1.10267 11.0562 0.603516 9.64584C0.456407 9.2295 0.674906 8.77245 1.09115 8.625C1.50747 8.47779 1.96445 8.69579 2.11198 9.11198C2.50078 10.2105 3.22102 11.1619 4.17253 11.8346C5.12407 12.5072 6.26119 12.8677 7.42643 12.8678C10.5368 12.8676 13.0604 10.3447 13.0605 7.23438C13.0604 4.12388 10.5357 1.59961 7.42513 1.59961C6.66351 1.59871 5.9092 1.75248 5.20898 2.05209C4.51197 2.35038 3.88251 2.78725 3.35872 3.33529L3.34701 3.34896L4.43164 4.43295C4.85168 4.85287 4.55429 5.57097 3.96029 5.57097H0.666667C0.298613 5.57082 2.39919e-05 5.27238 0 4.9043V1.61329C2.91144e-05 1.0195 0.717977 0.722221 1.13802 1.14193L2.21484 2.2168L2.45182 1.98047C3.07169 1.39237 3.7921 0.918328 4.57943 0.581384C5.47886 0.1965 6.44747 -0.000997797 7.42578 3.79053e-06H7.42708Z" fill="black" fill-opacity="0.2"/>
                                     <path d="M7.33333 3.6211C7.77509 3.6211 8.13335 3.9795 8.13346 4.42123V7.10026H9.77148L9.7793 7.10092L9.83073 7.10352L9.84505 7.10482C10.2485 7.14586 10.5636 7.48611 10.5638 7.90039C10.5636 8.31478 10.2484 8.65559 9.84505 8.69662L9.83073 8.69792L9.7793 8.70053L9.77148 8.70118H7.33854C7.26566 8.70118 7.19609 8.69047 7.13151 8.67318H7.12956C7.12674 8.67252 7.11782 8.67037 7.10742 8.66732L7.10417 8.66602C7.09782 8.66408 7.09215 8.66225 7.08984 8.66146L7.08854 8.66081L7.0306 8.63933L7.02734 8.63803C6.99566 8.62464 6.96663 8.60989 6.94076 8.59506C6.7232 8.47198 6.56507 8.24844 6.53776 7.98177L6.53711 7.97461L6.53646 7.9668L6.53385 7.91602L6.5332 7.90821V4.42123C6.53332 3.97957 6.89168 3.62122 7.33333 3.6211Z" fill="black" fill-opacity="0.2"/>
                                 </svg>
-                                <span th:text="${'Repeating: ' + jingle.repeatingTime.name}"></span>
+                                <span th:with="every=#{${'enum.JingleRepeatingTime.' + jingle.repeatingTime.name()}}" th:text="#{jingle.repeating(${every})}"></span>
                             </p>
                         </div>
                     </div>
@@ -210,7 +211,7 @@
                         <button class="btn-location"
                                 th:classappend="${jingle.stores != null and !jingle.stores.empty} ? 'btn-location--active' : ''"
                                 th:data-id="${jingle.id}">
-                            <span th:text="${jingle.stores != null and !jingle.stores.empty} ? ${jingle.stores.size() + ' location' + (jingle.stores.size() > 1 ? 's' : '')} : '+ Add to locations'">
+                            <span th:text="${jingle.stores != null and !jingle.stores.empty} ? (${jingle.stores.size() > 1} ? #{js.jingles.locations(${jingle.stores.size()})} : #{js.jingles.location_one}) : #{js.jingles.add_locations}">
                                 + Add to locations
                             </span>
                         </button>
@@ -220,7 +221,7 @@
                                 th:data-start="${#temporals.format(jingle.startDate, 'yyyy-MM-dd''T''HH:mm')}"
                                 th:data-end="${#temporals.format(jingle.endDate, 'yyyy-MM-dd''T''HH:mm')}"
                                 th:data-repeat="${jingle.repeatingTime.name()}">
-                            Edit schedule
+                            [[#{jingles.edit_schedule}]]
                         </button>
 
                         <button class="btn-delete-icon" th:data-id="${jingle.id}">
@@ -236,7 +237,7 @@
         <div id="storesModal" class="modal link-modal">
             <div class="modal-body">
                 <div class="modal-header">
-                    <h2>Add location</h2>
+                    <h2 th:text="#{jingles.add_location}">Add location</h2>
                     <span class="close" onclick="closeStoresModal()">
                 <span class="icon" th:replace="~{fragments/icons :: icon-close}"></span>
             </span>
@@ -255,7 +256,7 @@
                 </div>
 
                 <div class="modal-actions">
-                    <button class="btn-primary" onclick="saveJingleStores()">Save</button>
+                    <button class="btn-primary" onclick="saveJingleStores()" th:text="#{common.save}">Save</button>
                 </div>
             </div>
         </div>
@@ -264,35 +265,35 @@
         <div id="scheduleModal" class="modal link-modal">
             <div class="modal-body">
                 <div class="modal-header">
-                    <h2>Edit schedule</h2>
+                    <h2 th:text="#{jingles.edit_schedule}">Edit schedule</h2>
                     <span class="close" onclick="closeScheduleModal()">
                         <span class="icon" th:replace="~{fragments/icons :: icon-close}"></span>
                     </span>
                 </div>
 
                 <div class="modal-content schedule-form">
-                    <p class="schedule-hint">Change when this jingle plays. The audio stays the same, so this doesn’t use a generation.</p>
-                    <label>Starts
+                    <p class="schedule-hint" th:text="#{jingles.schedule_hint}">Change when this jingle plays. The audio stays the same, so this doesn’t use a generation.</p>
+                    <label>[[#{jingles.starts}]]
                         <input type="datetime-local" id="scheduleStart" required>
                     </label>
-                    <label>Ends
+                    <label>[[#{jingles.ends}]]
                         <input type="datetime-local" id="scheduleEnd" required>
                     </label>
-                    <label>Repeats
+                    <label>[[#{jingles.repeats}]]
                         <select id="scheduleRepeat">
-                            <option th:each="rt : ${jingleRepeatingTime}" th:value="${rt.name()}" th:text="${rt.name}">Every hour</option>
+                            <option th:each="rt : ${jingleRepeatingTime}" th:value="${rt.name()}" th:text="#{${'enum.JingleRepeatingTime.' + rt.name()}}">Every hour</option>
                         </select>
                     </label>
                     <p class="schedule-error" id="scheduleError"></p>
                 </div>
 
                 <div class="modal-actions">
-                    <button class="btn-primary" id="scheduleSaveBtn" onclick="saveSchedule()">Save</button>
+                    <button class="btn-primary" id="scheduleSaveBtn" onclick="saveSchedule()" th:text="#{common.save}">Save</button>
                 </div>
             </div>
         </div>
         <section class="history-section">
-            <h3>Requests to Pause/Stop</h3>
+            <h3 th:text="#{jingles.pause_requests}">Requests to Pause/Stop</h3>
             <div class="jingle-list">
                 <div th:each="request : ${jingleRequestsToPause}"
                      class="jingle-item" th:classappend="${request.pauseApproved} ? 'status-approved' : ''">
@@ -306,7 +307,7 @@
                         <div class="jingle-details">
                             <p class="jingle-title" th:text="${request.announcementText}">Text</p>
                             <p class="jingle-meta"
-                               th:text="${request.voice + ' · ' + '…' + ' · Start date ' + #temporals.format(request.startDate, 'dd.MM.yyyy') + '/ End date ' + #temporals.format(request.endDate, 'dd.MM.yyyy')}" th:attr="data-src=${request.fileUrl}">
+                               th:text="${request.voice.name + ' · … · '} + #{jingle.dates(${#temporals.format(request.startDate, 'dd.MM.yyyy')}, ${#temporals.format(request.endDate, 'dd.MM.yyyy')})}" th:attr="data-src=${request.fileUrl}">
                                 Voice · Duration · Date
                             </p>
 
@@ -315,7 +316,7 @@
                                     <path d="M7.42708 3.79053e-06C11.4208 0.000556932 14.6613 3.24056 14.6615 7.23438C14.6613 11.2285 11.42 14.4688 7.42578 14.4688L7.14583 14.4635C5.74839 14.4093 4.39396 13.9508 3.2487 13.1413C2.0271 12.2776 1.10267 11.0562 0.603516 9.64584C0.456407 9.2295 0.674906 8.77245 1.09115 8.625C1.50747 8.47779 1.96445 8.69579 2.11198 9.11198C2.50078 10.2105 3.22102 11.1619 4.17253 11.8346C5.12407 12.5072 6.26119 12.8677 7.42643 12.8678C10.5368 12.8676 13.0604 10.3447 13.0605 7.23438C13.0604 4.12388 10.5357 1.59961 7.42513 1.59961C6.66351 1.59871 5.9092 1.75248 5.20898 2.05209C4.51197 2.35038 3.88251 2.78725 3.35872 3.33529L3.34701 3.34896L4.43164 4.43295C4.85168 4.85287 4.55429 5.57097 3.96029 5.57097H0.666667C0.298613 5.57082 2.39919e-05 5.27238 0 4.9043V1.61329C2.91144e-05 1.0195 0.717977 0.722221 1.13802 1.14193L2.21484 2.2168L2.45182 1.98047C3.07169 1.39237 3.7921 0.918328 4.57943 0.581384C5.47886 0.1965 6.44747 -0.000997797 7.42578 3.79053e-06H7.42708Z" fill="black" fill-opacity="0.2"/>
                                     <path d="M7.33333 3.6211C7.77509 3.6211 8.13335 3.9795 8.13346 4.42123V7.10026H9.77148L9.7793 7.10092L9.83073 7.10352L9.84505 7.10482C10.2485 7.14586 10.5636 7.48611 10.5638 7.90039C10.5636 8.31478 10.2484 8.65559 9.84505 8.69662L9.83073 8.69792L9.7793 8.70053L9.77148 8.70118H7.33854C7.26566 8.70118 7.19609 8.69047 7.13151 8.67318H7.12956C7.12674 8.67252 7.11782 8.67037 7.10742 8.66732L7.10417 8.66602C7.09782 8.66408 7.09215 8.66225 7.08984 8.66146L7.08854 8.66081L7.0306 8.63933L7.02734 8.63803C6.99566 8.62464 6.96663 8.60989 6.94076 8.59506C6.7232 8.47198 6.56507 8.24844 6.53776 7.98177L6.53711 7.97461L6.53646 7.9668L6.53385 7.91602L6.5332 7.90821V4.42123C6.53332 3.97957 6.89168 3.62122 7.33333 3.6211Z" fill="black" fill-opacity="0.2"/>
                                 </svg>
-                                <span th:text="${'Repeating: ' + request.repeatingTime.name}"></span>
+                                <span th:with="every=#{${'enum.JingleRepeatingTime.' + request.repeatingTime.name()}}" th:text="#{jingle.repeating(${every})}"></span>
                             </p>
                             <p class="location-tag" th:if="${not #lists.isEmpty(request.stores)}">
                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -335,7 +336,7 @@
                             <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path fill-rule="evenodd" clip-rule="evenodd" d="M6.41667 0C9.96043 7.69658e-05 12.8333 2.87289 12.8333 6.41667C12.8333 9.96045 9.96043 12.8333 6.41667 12.8333C2.87284 12.8333 0 9.96049 0 6.41667C0 2.87284 2.87284 0 6.41667 0ZM8.29769 4.18929C8.04108 4.03011 7.70911 4.09415 7.52865 4.32829L7.49447 4.37728L5.44084 7.68644L4.76408 6.70833L4.72762 6.66105C4.53566 6.43632 4.20061 6.389 3.95231 6.56079C3.70397 6.73271 3.63052 7.06299 3.77344 7.32186L3.80477 7.37256L4.58293 8.4965C4.64407 8.58485 4.71196 8.68448 4.77718 8.76253C4.83475 8.83141 4.92995 8.93396 5.07284 9.00521L5.13664 9.03369C5.35484 9.11862 5.59799 9.11231 5.81169 9.0166L5.87435 8.98527C6.0134 8.90701 6.10342 8.79999 6.15747 8.72835C6.21873 8.64714 6.28139 8.54394 6.33805 8.45264L8.48568 4.99251L8.51473 4.9401C8.64436 4.67445 8.55427 4.34853 8.29769 4.18929Z" fill="black"/>
                             </svg>
-                            Approved
+                            [[#{js.jingles.approved}]]
                         </span>
 
                         <!-- Измененная кнопка -->
@@ -346,7 +347,7 @@
                             <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path fill-rule="evenodd" clip-rule="evenodd" d="M6.41667 0C9.96043 7.69658e-05 12.8333 2.87289 12.8333 6.41667C12.8333 9.96045 9.96043 12.8333 6.41667 12.8333C2.87284 12.8333 0 9.96049 0 6.41667C0 2.87284 2.87284 0 6.41667 0ZM8.29769 4.18929C8.04108 4.03011 7.70911 4.09415 7.52865 4.32829L7.49447 4.37728L5.44084 7.68644L4.76408 6.70833L4.72762 6.66105C4.53566 6.43632 4.20061 6.389 3.95231 6.56079C3.70397 6.73271 3.63052 7.06299 3.77344 7.32186L3.80477 7.37256L4.58293 8.4965C4.64407 8.58485 4.71196 8.68448 4.77718 8.76253C4.83475 8.83141 4.92995 8.93396 5.07284 9.00521L5.13664 9.03369C5.35484 9.11862 5.59799 9.11231 5.81169 9.0166L5.87435 8.98527C6.0134 8.90701 6.10342 8.79999 6.15747 8.72835C6.21873 8.64714 6.28139 8.54394 6.33805 8.45264L8.48568 4.99251L8.51473 4.9401C8.64436 4.67445 8.55427 4.34853 8.29769 4.18929Z" fill="black"/>
                             </svg>
-                            Approve
+                            [[#{jingles.approve}]]
                         </button>
                         <button class="btn-delete-icon" th:data-id="${request.id}">
                             <span class="icon" th:replace="~{fragments/icons :: icon-trash}"></span>
@@ -486,7 +487,7 @@
                 const daysInMonth = new Date(year, month + 1, 0).getDate();
                 const prevMonthDays = new Date(year, month, 0).getDate();
 
-                monthLabel.textContent = current.toLocaleString('en-US', {
+                monthLabel.textContent = current.toLocaleString(RESONA_LOCALE, {
                     month: 'long',
                     year: 'numeric'
                 });
@@ -565,7 +566,7 @@
                 if (start && end) {
                     rangePreview.textContent = `${format(start)} - ${format(end)}`;
                 } else if (start) {
-                    rangePreview.textContent = `${format(start)} - End date`;
+                    rangePreview.textContent = `${format(start)} - ${t('jingles.end_date')}`;
                 } else {
                     rangePreview.textContent = '--';
                 }
@@ -695,7 +696,7 @@
         const counter = document.querySelector('.char-counter');
 
         textarea.addEventListener('input', () => {
-            counter.textContent = `${textarea.value.length}/500 characters`;
+            counter.textContent = t('jingles.chars', textarea.value.length);
             textarea.classList.toggle('has-text', textarea.value.length > 0);
         });
     </script>
@@ -1012,8 +1013,8 @@
 
             span.innerText =
                 count > 0
-                    ? `${count} location${count > 1 ? "s" : ""}`
-                    : "+ Add to locations";
+                    ? (count > 1 ? t('jingles.locations', count) : t('jingles.location_one'))
+                    : t('jingles.add_locations');
         }
 
         /* =========================
@@ -1037,7 +1038,7 @@
                     const id = btn.getAttribute('data-id');
 
                     if (!id || !item) return;
-                    if (!confirm("Delete this jingle? It will stop playing in all stores. This can’t be undone.")) return;
+                    if (!confirm(t('jingles.delete_confirm'))) return;
 
                     try {
                         const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
@@ -1100,7 +1101,7 @@
     <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path fill-rule="evenodd" clip-rule="evenodd" d="M6.41667 0C9.96043 7.69658e-05 12.8333 2.87289 12.8333 6.41667C12.8333 9.96045 9.96043 12.8333 6.41667 12.8333C2.87284 12.8333 0 9.96049 0 6.41667C0 2.87284 2.87284 0 6.41667 0ZM8.29769 4.18929C8.04108 4.03011 7.70911 4.09415 7.52865 4.32829L7.49447 4.37728L5.44084 7.68644L4.76408 6.70833L4.72762 6.66105C4.53566 6.43632 4.20061 6.389 3.95231 6.56079C3.70397 6.73271 3.63052 7.06299 3.77344 7.32186L3.80477 7.37256L4.58293 8.4965C4.64407 8.58485 4.71196 8.68448 4.77718 8.76253C4.83475 8.83141 4.92995 8.93396 5.07284 9.00521L5.13664 9.03369C5.35484 9.11862 5.59799 9.11231 5.81169 9.0166L5.87435 8.98527C6.0134 8.90701 6.10342 8.79999 6.15747 8.72835C6.21873 8.64714 6.28139 8.54394 6.33805 8.45264L8.48568 4.99251L8.51473 4.9401C8.64436 4.67445 8.55427 4.34853 8.29769 4.18929Z" fill="black"/>
     </svg>
-    Approved
+    ${t('jingles.approved')}
 `;
 
                     btn.remove(); // Удаляем кнопку Approve
@@ -1108,12 +1109,12 @@
 
                     // Если у вас есть система уведомлений (toast)
                     if (typeof showToast === 'function') {
-                        showToast("Request approved successfully", "success");
+                        showToast(t('jingles.request_approved'), "success");
                     }
                 } else {
                     const errorText = await response.text();
                     console.error('Approve failed:', errorText);
-                    alert('Failed to approve request.');
+                    alert(t('jingles.approve_failed'));
                     btn.disabled = false;
                     btn.style.opacity = '1';
                 }
@@ -1160,7 +1161,7 @@
 
                 if (!startDate.value || !endDate.value) {
                     e.preventDefault();
-                    showDateError('Please select a start and end date');
+                    showDateError(t('jingles.dates_required'));
                     return;
                 }
 
@@ -1170,13 +1171,13 @@
 
                 if (end <= start) {
                     e.preventDefault();
-                    showDateError('End date must be after the start date');
+                    showDateError(t('jingles.end_after_start'));
                     return;
                 }
 
                 if (end <= now) {
                     e.preventDefault();
-                    showDateError('End date must be in the future');
+                    showDateError(t('jingles.end_in_future'));
                 }
             });
         });
@@ -1211,7 +1212,7 @@
                     btn.textContent = '■';
                     sampleAudio.addEventListener('ended', stopSample);
                     sampleAudio.play().catch(() => {
-                        btn.title = 'Sample not available right now';
+                        btn.title = t('jingles.sample_unavailable');
                         stopSample();
                     });
                 });
@@ -1246,15 +1247,15 @@
             const end = document.getElementById('scheduleEnd').value;
 
             if (!start || !end) {
-                error.textContent = 'Choose a start and an end.';
+                error.textContent = t('jingles.schedule_required');
                 return;
             }
             if (new Date(end) <= new Date(start)) {
-                error.textContent = 'The end must be after the start.';
+                error.textContent = t('jingles.schedule_end_after_start');
                 return;
             }
             if (new Date(end) <= new Date()) {
-                error.textContent = 'The end must be in the future.';
+                error.textContent = t('jingles.schedule_end_in_future');
                 return;
             }
 
@@ -1276,7 +1277,7 @@
                 if (!res.ok) throw new Error('Save failed');
                 window.location.reload();
             } catch (e) {
-                error.textContent = 'Couldn’t save the schedule. Please try again.';
+                error.textContent = t('jingles.schedule_failed');
                 saveBtn.disabled = false;
             }
         }
