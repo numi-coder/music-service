@@ -3,18 +3,7 @@
 <body>
 
 <!-- Texts for scripts: t('link.copied') returns the text in the viewer's language. -->
-<script th:fragment="texts" th:inline="javascript">
-    window.RESONA_TEXT = /*[[${T(kz.genvibe.media_management.config.I18n).scriptTexts(#locale)}]]*/ {};
-    window.RESONA_LOCALE = /*[[${#locale.language == 'ru' ? 'ru-RU' : 'en-GB'}]]*/ 'en-GB';
-
-    function t(key) {
-        var text = window.RESONA_TEXT[key] || key;
-        for (var i = 1; i < arguments.length; i++) {
-            text = text.split('{' + (i - 1) + '}').join(arguments[i]);
-        }
-        return text;
-    }
-</script>
+<script th:fragment="texts" th:src="@{/js/texts.js(lang=${#locale.language})}"></script>
 
 <!-- EN / RU switch: reloads the current page in the chosen language. -->
 <div th:fragment="switch(cssClass)" th:class="${cssClass}">

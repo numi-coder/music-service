@@ -74,8 +74,7 @@ class I18nTest {
         assertTrue(html.contains("Неверный email или пароль"));
         assertTrue(html.contains("placeholder=\"Пароль\""));
         assertTrue(html.contains("href=\"?lang=en\""));
-        assertTrue(html.contains("window.RESONA_TEXT = {") && html.contains("\"link.copied\":"), html);
-        assertTrue(html.contains("window.RESONA_LOCALE = \"ru-RU\""), html);
+        assertTrue(html.contains("<script src=\"/js/texts.js?lang=ru\"></script>"), html);
         assertFalse(html.contains("??"), "a text is missing from the message files");
     }
 
