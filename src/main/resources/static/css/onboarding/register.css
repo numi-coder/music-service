@@ -134,3 +134,16 @@ hr{
 .form-link-quiet a {
     color: #00000080;
 }
+
+.form-signup {
+    margin: 16px 0 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    text-align: center;
+    color: #00000080;
+}
+
+.form-signup a {
+    color: #000;
+    font-weight: 500;
+}

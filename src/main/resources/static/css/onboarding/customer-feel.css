@@ -101,3 +101,10 @@ button:last-child {
         min-height: 96px;
     }
 }
+
+/* ===== Small laptops and landscape tablets ===== */
+@media (max-width: 1199px) {
+    .feel-card {
+        width: auto;
+    }
+}

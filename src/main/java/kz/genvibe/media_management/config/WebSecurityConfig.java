@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.session.SessionLimit;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.Session;
@@ -55,6 +56,7 @@ public class WebSecurityConfig implements WebMvcConfigurer {
             .csrf(csrf -> csrf.ignoringRequestMatchers("/ws-player/**", "/landing/request"))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
+                    "/",
                     "/auth/**",
                     "/onboarding/**",
                     "/assets/**",
@@ -91,9 +93,12 @@ public class WebSecurityConfig implements WebMvcConfigurer {
                 .deleteCookies("JSESSIONID")
             )
             .sessionManagement(session -> session
-                .maximumSessions(1)
-                .sessionRegistry(sessionRegistry)
-                .expiredUrl("/auth/login?expired")
+                // A store's player plays on one device at a time; owners can use several devices.
+                .sessionConcurrency(concurrency -> concurrency
+                    .maximumSessions((SessionLimit) authentication -> LandingPage.hasRole(authentication, UserRole.ROLE_USER) ? 1 : -1)
+                    .sessionRegistry(sessionRegistry)
+                    .expiredUrl("/auth/login?expired")
+                )
             );
         return http.build();
     }

@@ -13,6 +13,9 @@
         <div class="form-message error" th:if="${param.setupExpired}" th:text="#{auth.login.setup_expired}">
             That link has expired or was already used. Use “Forgot password?” to get a new one.
         </div>
+        <div class="form-message" th:if="${param.accountExists}" th:text="#{auth.login.account_exists}">
+            You already have an account with this email. Please sign in.
+        </div>
         <div class="form-message error" th:if="${param.noStore}" th:text="#{auth.login.no_store}">
             This account isn’t linked to an active store yet. Ask the store owner to activate it.
         </div>
@@ -32,6 +35,7 @@
             </div>
             <hr>
             <button class="btn" type="submit" th:text="#{auth.login.submit}">Login</button>
+            <p class="form-signup"><th:block th:text="#{auth.login.new}">New to Resona?</th:block> <a th:href="@{/onboarding/welcome}" th:text="#{auth.login.start}">Try it free</a></p>
             <div class="form-links">
                 <a class="form-link" th:href="@{/auth/forgot-password}" th:text="#{auth.login.forgot}">Forgot password?</a>
                 <span class="form-link-quiet"><a href="/terms" th:text="#{common.terms}">Terms</a> · <a href="/privacy" th:text="#{common.privacy}">Privacy</a></span>

@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.constraints.Email;
+import kz.genvibe.media_management.repository.AppUserRepository;
 import kz.genvibe.media_management.service.internal.AuthService;
 import kz.genvibe.media_management.service.internal.PasswordResetService;
 import kz.genvibe.media_management.service.internal.UserService;
@@ -23,6 +24,7 @@ public class AuthController {
     private final AuthService authService;
     private final UserService userService;
     private final PasswordResetService passwordResetService;
+    private final AppUserRepository appUserRepository;
 
     /** Set-password page; only reachable right after opening a verification or reset link. */
     @GetMapping("/register")
@@ -92,6 +94,10 @@ public class AuthController {
 
     @PostMapping("/send-email")
     public String sendEmail(@RequestParam String email) {
+        // Someone who already has an account is asked to sign in, not to sign up again.
+        var existing = appUserRepository.findByEmail(email.strip()).filter(user -> user.isEmailVerified() && !user.isEmailChanged());
+        if (existing.isPresent()) return "redirect:/auth/login?accountExists";
+
         authService.sendEmailVerification(email);
         var appUser = userService.getUserByEmail(email);
 

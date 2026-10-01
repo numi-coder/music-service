@@ -18,7 +18,7 @@ class LanguageSwitchTest {
 
     @BeforeEach
     void setUp() {
-        var localeResolver = new I18nConfig().localeResolver();
+        var localeResolver = new I18nConfig(null).localeResolver();
         mockMvc = MockMvcBuilders.standaloneSetup(new LegalController())
             .setLocaleResolver(localeResolver)
             .addInterceptors(I18nConfig.languageSwitch(localeResolver))

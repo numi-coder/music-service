@@ -24,6 +24,12 @@ import java.util.Locale;
 @Configuration
 public class I18nConfig implements WebMvcConfigurer {
 
+    private final SignedInRedirect signedInRedirect;
+
+    public I18nConfig(SignedInRedirect signedInRedirect) {
+        this.signedInRedirect = signedInRedirect;
+    }
+
     static final String LANGUAGE_COOKIE = "resona_lang";
     static final String LANGUAGE_PARAMETER = "lang";
     /** Set by nginx to the visitor's own address. */
@@ -60,6 +66,7 @@ public class I18nConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(languageSwitch(localeResolver()));
+        registry.addInterceptor(signedInRedirect).addPathPatterns(SignedInRedirect.PATHS);
     }
 
     /** Switches the language when a page is opened with ?lang=en or ?lang=ru. */

@@ -935,3 +935,24 @@ textarea.has-text {
         gap: 8px;
     }
 }
+
+/* ===== Small laptops and landscape tablets ===== */
+@media (min-width: 901px) and (max-width: 1279px) {
+    .jingle-details {
+        width: auto;
+        min-width: 0;
+        flex: 1;
+    }
+
+    .jingle-title {
+        max-width: 100%;
+    }
+
+    .voice-grid {
+        flex-wrap: wrap;
+    }
+
+    .form-row-triple {
+        grid-template-columns: 1fr 1fr;
+    }
+}

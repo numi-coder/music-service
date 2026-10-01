@@ -310,3 +310,19 @@ tbody tr:last-child td { border-bottom: none; }
     font-weight: 500;
     color: #00000080;
 }
+
+/* ===== Small laptops and landscape tablets ===== */
+.stat-card,
+.stat-item,
+.analytics-card {
+    min-width: 0;
+}
+
+.grid-2 > *,
+.card-inner {
+    min-width: 0;
+}
+
+.card-inner canvas {
+    max-width: 100%;
+}

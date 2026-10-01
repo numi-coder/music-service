@@ -12,7 +12,8 @@
     --muted: #5B5B5B;
     --page: #FEF8F3;
     --panel: #FBF8F0;
-    --panel-h: min(800px, 100vh);
+    /* Desktop panels are drawn at the original 1440 x 800 design size and zoomed to fit the screen (--s, set by landing.js). */
+    --s: 1;
     --ease-out: cubic-bezier(.16, 1, .3, 1);
 }
 
@@ -74,7 +75,8 @@ body.lp {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 max(20px, calc((100vw - 1200px) / 2));
+    padding: 0 max(20px, calc(50% - 600px));
+    zoom: var(--s);
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
     box-shadow: 0 0 8px rgba(230, 230, 230, .19);
@@ -214,6 +216,9 @@ body.lp {
 
 .lp-panel {
     position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     flex: none;
     width: 100vw;
     height: 100vh;
@@ -223,14 +228,17 @@ body.lp {
 
 .lp-box {
     position: relative;
-    height: var(--panel-h);
+    flex: none;
+    width: 1440px;
+    height: 800px;
+    zoom: var(--s);
 }
 
 .lp-panel-bg {
     position: absolute;
     inset: 0;
     width: 100%;
-    height: var(--panel-h);
+    height: 100%;
     object-fit: cover;
     pointer-events: none;
 }
@@ -278,9 +286,8 @@ body.lp {
 .lp-hero-rays {
     left: 50%;
     top: 43px;
-    width: min(1111px, calc(100vw - 80px));
+    width: 1111px;
     height: 695px;
-    max-height: calc(var(--panel-h) - 86px);
     transform: translateX(-50%);
     border-radius: 330px;
     animation: lp-breathe 9s ease-in-out infinite;
@@ -343,8 +350,8 @@ body.lp {
     position: absolute;
     left: 50%;
     top: 182px;
-    width: min(915px, calc(100vw - 64px), calc((var(--panel-h) - 250px) * 1.78));
-    margin-left: calc(min(915px, calc(100vw - 64px), calc((var(--panel-h) - 250px) * 1.78)) / -2);
+    width: 915px;
+    margin-left: -457.5px;
 }
 
 .lp-laptop img {
@@ -356,8 +363,8 @@ body.lp {
 .lp-divider {
     position: absolute;
     left: 50%;
-    bottom: calc(var(--panel-h) - 742px);
-    width: min(1216px, calc(100vw - 64px));
+    top: 728px;
+    width: 1216px;
     height: 14px;
     transform: translateX(-50%);
 }
@@ -388,9 +395,8 @@ body.lp {
 .lp-protect-rays {
     left: 50%;
     top: 52px;
-    width: min(1132px, calc(100vw - 80px));
+    width: 1132px;
     height: 696px;
-    max-height: calc(var(--panel-h) - 104px);
     transform: translateX(-50%);
     border-radius: 300px;
     opacity: .45;
@@ -434,9 +440,8 @@ body.lp {
 .lp-steps-rays {
     left: 50%;
     top: 0;
-    width: min(1294px, 100vw);
+    width: 1294px;
     height: 800px;
-    max-height: var(--panel-h);
     transform: translateX(-50%);
     border-radius: 330px;
     opacity: .6;
@@ -446,7 +451,7 @@ body.lp {
     position: absolute;
     left: 50%;
     top: 50%;
-    width: min(1045px, calc(100vw - 64px));
+    width: 1045px;
     transform: translate(-50%, -50%);
 }
 
@@ -517,8 +522,8 @@ body.lp {
     left: 50%;
     top: 50%;
     display: flex;
-    width: min(1078px, calc(100vw - 64px));
-    height: min(508px, calc(var(--panel-h) - 160px));
+    width: 1078px;
+    height: 508px;
     transform: translate(-50%, -50%);
     border-radius: 16px;
     background: #FFF;
@@ -785,7 +790,7 @@ body.lp {
     position: absolute;
     left: 50%;
     top: 116px;
-    width: min(1045px, calc(100vw - 64px));
+    width: 1045px;
     transform: translateX(-50%);
 }
 
@@ -862,13 +867,15 @@ body.lp {
 
 /* trusted by + FAQ: the last panel, taller than the screen, so it scrolls on up */
 .lp-faq-panel {
+    display: block;
     height: auto;
     min-height: 100vh;
     overflow: visible;
 }
 
 .lp-faq-container {
-    width: min(1200px, calc(100vw - 48px));
+    zoom: var(--s);
+    width: min(1200px, calc(100% - 48px));
     margin: 40px auto 0;
     padding: 72px 40px;
     border-radius: 0 0 16px 16px;
@@ -980,6 +987,7 @@ body.lp {
 
 /* ---------- request form ---------- */
 .lp-request {
+    zoom: var(--s);
     padding: 186px 24px 0;
     min-height: 700px;
 }
@@ -1099,6 +1107,7 @@ body.lp {
 /* ---------- footer ---------- */
 .lp-footer {
     position: relative;
+    zoom: var(--s);
     height: 298px;
     overflow: hidden;
 }
@@ -1116,7 +1125,7 @@ body.lp {
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
-    width: min(1045px, calc(100vw - 48px));
+    width: min(1045px, calc(100% - 48px));
     margin: 80px auto 0;
 }
 
@@ -1161,9 +1170,15 @@ body.lp {
 }
 
 /* ---------- phones and small tablets ---------- */
-@media (max-width: 899px) {
+@media (max-width: 899px), (orientation: portrait) and (max-width: 1100px) {
     :root {
-        --panel-h: 100svh;
+        --s: 1;
+    }
+
+    .lp-box {
+        width: 100vw;
+        height: 100svh;
+        zoom: 1;
     }
 
     .lp-header {
@@ -1264,6 +1279,10 @@ body.lp {
 
     /* each step gets a screen of its own */
     .lp-steps {
+        width: 300vw;
+    }
+
+    .lp-steps .lp-box {
         width: 300vw;
     }
 
@@ -1459,6 +1478,26 @@ body.lp {
     .lp-footer-right {
         text-align: left;
     }
+}
+
+/* Portrait tablets use the phone layout with larger text. */
+@media (min-width: 600px) and (orientation: portrait) and (max-width: 1100px) {
+    .lp-hero-title { font-size: 56px; letter-spacing: -2.2px; }
+    .lp-hero-lead { font-size: 20px; line-height: 32px; }
+    .lp-hero-sub { max-width: 520px; font-size: 18px; line-height: 28px; }
+    .lp-h2, .lp-protect-title { font-size: 44px; line-height: 1.2; }
+    .lp-protect-text, .lp-step p { font-size: 18px; line-height: 28px; }
+    .lp-step h3 { font-size: 28px; }
+    .lp-rings { height: 300px; zoom: 1.3; }
+    .lp-card h2 { font-size: 34px; line-height: 44px; }
+    .lp-card p, .lp-card li { font-size: 17px; line-height: 27px; }
+    .lp-card-text, .lp-feature-reverse .lp-card-text { padding: 40px 40px 24px; }
+    .lp-layers, .lp-discs { scale: 1; }
+    .lp-orbit { scale: 1; }
+    .lp-jingle { height: 340px; }
+    .lp-faq-container, .lp-request { width: min(720px, 100%); margin-left: auto; margin-right: auto; }
+    .lp-faq-q { font-size: 18px; line-height: 28px; }
+    .lp-faq-a p { font-size: 16px; line-height: 26px; }
 }
 
 /* People who ask their device for less motion get a still page. */

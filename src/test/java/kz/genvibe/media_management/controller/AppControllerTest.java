@@ -1,57 +1,83 @@
 package kz.genvibe.media_management.controller;
 
 import kz.genvibe.media_management.config.LandingPage;
+import kz.genvibe.media_management.config.SignedInRedirect;
 import kz.genvibe.media_management.model.enums.UserRole;
+import kz.genvibe.media_management.repository.StoreRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
 class AppControllerTest {
 
-    @Mock
-    private LandingPage landingPage;
+    private final StoreRepository storeRepository = mock(StoreRepository.class);
+    private final LandingPage landingPage = new LandingPage(storeRepository);
+    private final AppController appController = new AppController(landingPage);
 
-    @InjectMocks
-    private AppController appController;
+    private static final Authentication VISITOR = new AnonymousAuthenticationToken("key", "anonymousUser",
+        List.of(new SimpleGrantedAuthority("ROLE_ANONYMOUS")));
+    private static final Authentication OWNER = new UsernamePasswordAuthenticationToken("owner@example.com", null, List.of(UserRole.ROLE_ADMIN));
+    // After a restart, roles come back from the session store as plain authorities.
+    private static final Authentication OWNER_PLAIN = new UsernamePasswordAuthenticationToken("owner@example.com", null, List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
+    private static final Authentication STORE_WITHOUT_LINK = new UsernamePasswordAuthenticationToken("store@example.com", null, List.of(UserRole.ROLE_USER));
 
-    @Test
-    @DisplayName("The installed app sends signed-out people to the login page")
-    void anonymousGoesToLogin() {
-        var anonymous = new AnonymousAuthenticationToken("key", "anonymousUser",
-            List.of(new SimpleGrantedAuthority("ROLE_ANONYMOUS")));
-
-        assertEquals("redirect:/auth/login", appController.openApp(anonymous));
-        assertEquals("redirect:/auth/login", appController.openApp(null));
+    @AfterEach
+    void tearDown() {
+        SecurityContextHolder.clearContext();
     }
 
     @Test
-    @DisplayName("A store account opens its music player")
-    void storeGoesToPlayer() {
-        var store = new UsernamePasswordAuthenticationToken("store@example.com", null, List.of(UserRole.ROLE_USER));
-        when(landingPage.pathFor("store@example.com", UserRole.ROLE_USER)).thenReturn("/stores/15/abc");
-
-        assertEquals("redirect:/stores/15/abc", appController.openApp(store));
+    @DisplayName("weresona.com shows the landing page to visitors and the dashboard to signed-in owners")
+    void siteRoot() {
+        assertEquals("pages/landing", appController.home(VISITOR));
+        assertEquals("pages/landing", appController.home(null));
+        assertEquals("redirect:/dashboard", appController.home(OWNER));
+        assertEquals("redirect:/dashboard", appController.home(OWNER_PLAIN));
     }
 
     @Test
-    @DisplayName("An owner opens the dashboard")
-    void ownerGoesToDashboard() {
-        var owner = new UsernamePasswordAuthenticationToken("owner@example.com", null, List.of(UserRole.ROLE_ADMIN));
-        when(landingPage.pathFor("owner@example.com", UserRole.ROLE_ADMIN)).thenReturn("/dashboard");
+    @DisplayName("The installed app opens the login page for visitors and the right page for accounts")
+    void installedApp() {
+        when(storeRepository.findByStoreUser_Email("store@example.com")).thenReturn(Optional.empty());
 
-        assertEquals("redirect:/dashboard", appController.openApp(owner));
+        assertEquals("redirect:/auth/login", appController.openApp(VISITOR));
+        assertEquals("redirect:/dashboard", appController.openApp(OWNER));
+        assertEquals("redirect:/auth/login?noStore", appController.openApp(STORE_WITHOUT_LINK));
+    }
+
+    @Test
+    @DisplayName("Signed-in people skip sign-up and login; visitors and stores without a store don't loop")
+    void signedInRedirect() throws Exception {
+        when(storeRepository.findByStoreUser_Email("store@example.com")).thenReturn(Optional.empty());
+        var interceptor = new SignedInRedirect(landingPage);
+
+        SecurityContextHolder.getContext().setAuthentication(OWNER);
+        var response = new MockHttpServletResponse();
+        assertFalse(interceptor.preHandle(new MockHttpServletRequest("GET", "/onboarding/welcome"), response, new Object()));
+        assertEquals("/dashboard", response.getRedirectedUrl());
+
+        assertTrue(interceptor.preHandle(new MockHttpServletRequest("POST", "/auth/login"), new MockHttpServletResponse(), new Object()),
+            "posting the login form still works");
+
+        SecurityContextHolder.getContext().setAuthentication(STORE_WITHOUT_LINK);
+        assertTrue(interceptor.preHandle(new MockHttpServletRequest("GET", "/auth/login"), new MockHttpServletResponse(), new Object()));
+
+        SecurityContextHolder.getContext().setAuthentication(VISITOR);
+        assertTrue(interceptor.preHandle(new MockHttpServletRequest("GET", "/onboarding/welcome"), new MockHttpServletResponse(), new Object()));
     }
 
 }

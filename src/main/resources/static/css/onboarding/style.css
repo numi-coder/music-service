@@ -297,3 +297,10 @@ input:valid {
         padding: 12px 16px 0;
     }
 }
+
+/* Not enough room for the picture beside the form. */
+@media (max-width: 999px) {
+    .onboarding-left {
+        display: none;
+    }
+}

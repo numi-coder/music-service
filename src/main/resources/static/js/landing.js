@@ -13,7 +13,7 @@
     root.classList.add('js');
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const phone = window.matchMedia('(max-width: 899px)');
+    const phone = window.matchMedia('(max-width: 899px), (orientation: portrait) and (max-width: 1100px)');
 
     const tour = document.getElementById('tour');
     const pin = tour.querySelector('.lp-pin');
@@ -36,6 +36,9 @@
     let tourTop = 0;
 
     function measure() {
+        // Desktop panels are designed at 1440 x 900 and zoomed to fit the screen.
+        const s = phone.matches ? 1 : Math.min(1.6, Math.max(0.6, Math.min(window.innerWidth / 1440, window.innerHeight / 900)));
+        root.style.setProperty('--s', s.toFixed(4));
         placeSections();
         const panels = [...track.children];
         const last = panels[panels.length - 1];
