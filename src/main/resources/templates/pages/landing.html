@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="#{landing.title}">Resona AI - Design the atmosphere. Drive performance.</title>
+    <meta name="description" th:content="#{landing.description}">
+    <meta property="og:title" th:content="#{landing.title}">
+    <meta property="og:description" th:content="#{landing.description}">
+    <meta property="og:image" content="https://weresona.com/assets/landing/og-image.jpg">
+    <meta property="og:type" content="website">
+    <meta name="theme-color" content="#FBF8F0">
+    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600&display=swap" rel="stylesheet">
+    <link rel="preload" href="/assets/landing/satoshi-bold.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" th:href="@{/css/landing.css}">
+</head>
+<body class="lp">
+
+<header class="lp-header">
+    <a class="lp-logo" href="/" aria-label="Resona AI">
+        <img src="/assets/landing/wordmark.svg" alt="ResonaAI" width="139" height="32">
+    </a>
+    <nav class="lp-nav">
+        <div th:replace="~{fragments/i18n :: switch('lang-switch lp-lang')}"></div>
+        <a class="lp-login" href="/auth/login" th:text="#{landing.nav.login}">Login</a>
+        <a class="lp-btn-black" href="/onboarding/welcome" th:text="#{landing.nav.try}">Try for Free</a>
+    </nav>
+</header>
+
+<main>
+    <!-- The tour: scrolling down moves these panels sideways. -->
+    <section class="lp-tour" id="tour">
+        <div class="lp-pin">
+            <div class="lp-track" id="track">
+
+                <section class="lp-panel lp-hero" data-panel>
+                    <div class="lp-box">
+                        <div class="lp-rays-box lp-hero-rays" aria-hidden="true">
+                            <canvas class="lp-rays" data-back="255,253,247" data-ray="0,26,219" data-strength=".07"></canvas>
+                            <div class="lp-noise" style="opacity:.02"></div>
+                        </div>
+                        <div class="lp-hero-content">
+                            <h1 class="lp-hero-title">
+                                <span class="lp-gradient-text" th:text="#{landing.hero.line1}">Design the atmosphere.</span><br><span class="lp-gradient-text" th:text="#{landing.hero.line2}">Drive performance.</span>
+                            </h1>
+                            <p class="lp-hero-lead" th:text="#{landing.hero.lead}">Average brands play music. Great ones engineer atmosphere.</p>
+                            <p class="lp-hero-sub" th:text="#{landing.hero.sub}">Consistent across every location, fully licensed, centrally controlled.</p>
+                            <a class="lp-btn-glow" href="/onboarding/welcome"><span th:text="#{landing.try}">Try for free</span></a>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="lp-panel lp-demo" data-panel>
+                    <img class="lp-panel-bg" src="/assets/landing/bg-demo.png" alt="" loading="lazy">
+                    <div class="lp-box">
+                        <h2 class="lp-h2 lp-demo-title" th:text="#{landing.demo.title}">Control Everything from One Place</h2>
+                        <div class="lp-laptop" data-appear="scale">
+                            <img src="/assets/landing/laptop.png" th:alt="#{landing.demo.alt}" alt="The Resona AI dashboard on a laptop" width="1400" height="782" loading="lazy">
+                        </div>
+                        <div class="lp-divider" aria-hidden="true"><span></span></div>
+                    </div>
+                </section>
+
+                <section class="lp-panel lp-protect" data-panel>
+                    <div class="lp-box">
+                        <div class="lp-rays-box lp-protect-rays" aria-hidden="true">
+                            <canvas class="lp-rays" data-back="255,224,224" data-ray="224,162,45" data-strength=".4"></canvas>
+                            <div class="lp-noise" style="opacity:.05"></div>
+                        </div>
+                        <div class="lp-protect-content">
+                            <h2 class="lp-protect-title" th:text="#{landing.protect.title}">Protect your brand</h2>
+                            <p class="lp-protect-text" th:text="#{landing.protect.text}">Our AI audio solutions are your proof of compliance. 100% royalty free</p>
+                            <a class="lp-btn-glow" href="/onboarding/welcome"><span th:text="#{landing.try}">Try for free</span></a>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="lp-panel lp-steps" data-panel>
+                    <div class="lp-box">
+                        <div class="lp-rays-box lp-steps-rays" aria-hidden="true">
+                            <canvas class="lp-rays" data-back="255,237,237" data-ray="255,214,214" data-strength=".6"></canvas>
+                            <div class="lp-noise" style="opacity:.03"></div>
+                        </div>
+                        <div class="lp-steps-content">
+                            <h2 class="lp-h2" th:text="#{landing.steps.title}">Smart sound, seamless control</h2>
+                            <div class="lp-step-cards">
+                                <div class="lp-step" th:each="i : ${#numbers.sequence(1, 3)}" th:attr="data-appear=${i > 1} ? 'up' : null, data-delay=${i > 1} ? ${(i - 1) * 150} : null">
+                                    <h3 th:text="#{${'landing.steps.' + i + '.title'}}">Connect Your Tools</h3>
+                                    <div class="lp-rings" aria-hidden="true"></div>
+                                    <p th:text="#{${'landing.steps.' + i + '.text'}}">Tell us about your space.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="lp-panel lp-feature" data-panel>
+                    <img class="lp-panel-bg" src="/assets/landing/bg-feature-1.png" alt="" loading="lazy">
+                    <div class="lp-box">
+                        <div class="lp-card">
+                            <div class="lp-card-text">
+                                <div class="lp-card-title">
+                                    <h2 th:text="#{landing.f1.title}">Create moments customers feel.</h2>
+                                    <p class="lp-muted" th:text="#{landing.f1.sub}">Not playlists. No inconsistency.</p>
+                                </div>
+                                <ul class="lp-checks">
+                                    <li class="lp-checks-label" th:text="#{landing.f1.label}">The right audio at the right time:</li>
+                                    <li class="lp-check" th:text="#{landing.f1.1}">Increases dwell time</li>
+                                    <li class="lp-check" th:text="#{landing.f1.2}">Lifts customer satisfaction</li>
+                                    <li class="lp-check" th:text="#{landing.f1.3}">Reinforces your brand in seconds</li>
+                                </ul>
+                            </div>
+                            <div class="lp-card-art lp-art-layers" aria-hidden="true">
+                                <div class="lp-layers">
+                                    <img class="lp-layer" src="/assets/landing/layer-top.png" alt="">
+                                    <img class="lp-layer" src="/assets/landing/layer.png" alt="">
+                                    <img class="lp-layer" src="/assets/landing/layer.png" alt="">
+                                    <svg class="lp-layer-top" viewBox="0 0 297 191"><defs><radialGradient id="lpTop" cx=".59" cy=".9" r=".81"><stop offset="0" stop-color="rgba(203,161,235,.7)"/><stop offset="1" stop-color="rgb(158,105,198)"/></radialGradient></defs><path d="M150.459 190.331c-2.281 1.379-5.912 1.278-8.112-.226L1.608 93.877c-2.2-1.504-2.135-3.842.146-5.221L146.674.972c2.28-1.379 5.912-1.278 8.112.226l140.738 96.228c2.2 1.504 2.135 3.841-.145 5.221Z" fill="url(#lpTop)"/></svg>
+                                    <svg class="lp-arrows" viewBox="0 0 60 100"><defs><linearGradient id="lpArrow" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff"/></linearGradient></defs><g fill="none" stroke="url(#lpArrow)" stroke-width="1.3" stroke-linecap="round"><path d="M30 99V2M26 6l4-4 4 4"/><path d="M8 99V30M4 34l4-4 4 4"/><path d="M52 99V30M48 34l4-4 4 4"/></g></svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="lp-panel lp-feature lp-feature-reverse" data-panel>
+                    <div class="lp-box">
+                        <div class="lp-card">
+                            <div class="lp-card-art lp-art-discs" aria-hidden="true">
+                                <div class="lp-discs">
+                                    <img class="lp-disc" src="/assets/landing/disc-large.png" alt="">
+                                    <img class="lp-disc" src="/assets/landing/disc-large.png" alt="">
+                                    <img class="lp-disc" src="/assets/landing/disc-large.png" alt="">
+                                    <img class="lp-disc" src="/assets/landing/disc-large.png" alt="">
+                                    <svg class="lp-disc-arrow" viewBox="0 0 274 26"><defs><linearGradient id="lpDiscArrow" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff"/></linearGradient></defs><path d="M2 13h268M260 4l9 9-9 9" fill="none" stroke="url(#lpDiscArrow)" stroke-width="1.6" stroke-linecap="round"/></svg>
+                                </div>
+                            </div>
+                            <div class="lp-card-text">
+                                <div class="lp-card-title">
+                                    <h2 th:text="#{landing.f2.title}">Turn sound into revenue.</h2>
+                                    <p class="lp-muted" th:text="#{landing.f2.sub}">Crafted by AI. Designed to be remembered and influenced.</p>
+                                </div>
+                                <ul class="lp-checks">
+                                    <li class="lp-check" th:text="#{landing.f2.1}">Sound shapes everything — mood, behavior, and spending.</li>
+                                    <li class="lp-check" th:text="#{landing.f2.2}">With Resona AI, you don’t just play music, you design the experience.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="lp-panel lp-feature" data-panel>
+                    <img class="lp-panel-bg" src="/assets/landing/bg-demo.png" alt="" loading="lazy">
+                    <div class="lp-box">
+                        <div class="lp-card">
+                            <div class="lp-card-text">
+                                <div class="lp-card-title">
+                                    <h2 th:text="#{landing.f3.title}">Control every location. Effortlessly.</h2>
+                                    <p class="lp-muted" th:text="#{landing.f3.sub}">Whether you run one store or hundreds:</p>
+                                </div>
+                                <ul class="lp-checks">
+                                    <li class="lp-check" th:text="#{landing.f3.1}">One dashboard to see performance</li>
+                                    <li class="lp-check" th:text="#{landing.f3.2}">Custom audio zones for different spaces</li>
+                                    <li class="lp-check" th:text="#{landing.f3.3}">Real-time control across all locations</li>
+                                </ul>
+                                <p class="lp-card-end" th:text="#{landing.f3.end}">No complexity. Just control.</p>
+                            </div>
+                            <div class="lp-card-art lp-art-orbit" aria-hidden="true">
+                                <div class="lp-orbit">
+                                    <img class="lp-orbit-big" src="/assets/landing/circle-big.png" alt="">
+                                    <div class="lp-orbit-ring"></div>
+                                    <div class="lp-orbit-core"></div>
+                                    <div class="lp-orbit-arm"><img src="/assets/landing/circle-small-1.png" alt=""></div>
+                                    <div class="lp-orbit-arm lp-orbit-arm-2"><img src="/assets/landing/circle-small-2.png" alt=""></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Jingles and FAQ ride along sideways on wide screens; on phones they are moved below the tour. -->
+                <section class="lp-panel lp-jingles" id="jingles" data-panel>
+                    <div class="lp-box">
+                        <div class="lp-jingles-content">
+                            <h2 class="lp-h2" th:text="#{landing.jingles.title}">Generate Jingles with AI Voices</h2>
+                            <div class="lp-jingle-cards">
+                                <button type="button" class="lp-jingle" th:each="i : ${#numbers.sequence(1, 2)}" th:attr="data-audio=@{/assets/landing/jingle-{n}.mp3(n=${i})}">
+                                    <img th:src="@{/assets/landing/jingle-{n}.jpg(n=${i})}" alt="" loading="lazy">
+                                    <span class="lp-jingle-tag">
+                                        <svg class="lp-icon-play" viewBox="0 0 16 17" aria-hidden="true"><path d="M0 8.573V3.003C0 .695 2.499-.749 4.495.407l4.826 2.787 4.827 2.786c2 1.153 2 4.04 0 5.193l-4.827 2.786-4.826 2.787C2.499 17.902 0 16.458 0 14.15Z" fill="currentColor"/></svg>
+                                        <svg class="lp-icon-pause" viewBox="0 0 16 17" aria-hidden="true"><rect x="2" y="1" width="4" height="15" rx="1.5" fill="currentColor"/><rect x="10" y="1" width="4" height="15" rx="1.5" fill="currentColor"/></svg>
+                                        <span class="lp-jingle-play" th:text="#{landing.jingles.play}">Play Jingle</span>
+                                        <span class="lp-jingle-pause" th:text="#{landing.jingles.pause}">Pause</span>
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="lp-panel lp-faq-panel" id="faq" data-panel>
+                    <div class="lp-faq-container">
+                        <div class="lp-trusted">
+                            <p class="lp-trusted-title" th:text="#{landing.trusted}">Trusted by leading enterprises</p>
+                            <div class="lp-ticker">
+                                <div class="lp-ticker-row">
+                                    <img src="/assets/landing/logo-starbucks.png" alt="Starbucks" height="47">
+                                    <img src="/assets/landing/logo-astana-hub.png" alt="Astana Hub" height="51">
+                                    <img src="/assets/landing/logo-rumi.png" alt="Rumi" height="39">
+                                    <img src="/assets/landing/logo-europharma.png" alt="Europharma" height="38">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="lp-faq">
+                            <h2 class="lp-faq-title" th:text="#{landing.faq.title}">Frequently Asked Questions</h2>
+                            <div class="lp-faq-list">
+                                <div class="lp-faq-item" th:each="i : ${#numbers.sequence(1, 5)}" data-appear="up20" th:attr="data-delay=${(i - 1) * 100}">
+                                    <button type="button" class="lp-faq-q" aria-expanded="false" th:attr="aria-controls=${'faq-a-' + i}">
+                                        <span th:text="#{${'landing.faq.' + i + '.q'}}">Question</span>
+                                        <img src="/assets/landing/chevron.svg" alt="" width="24" height="25">
+                                    </button>
+                                    <div class="lp-faq-a" th:id="${'faq-a-' + i}" role="region">
+                                        <div><p th:text="#{${'landing.faq.' + i + '.a'}}">Answer</p></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </div>
+    </section>
+
+    <div class="lp-after" id="after"></div>
+
+    <section class="lp-request" id="request">
+        <div class="lp-request-card" data-appear="up">
+            <h2 th:text="#{landing.form.title}">Leave us a request</h2>
+            <form class="lp-form" id="requestForm" method="post" action="/landing/request" novalidate
+                  th:attr="data-sending=#{landing.form.sending}, data-thanks=#{landing.form.thanks}, data-error=#{landing.form.error}, data-invalid=#{landing.form.invalid}">
+                <label class="lp-field">
+                    <span th:text="#{landing.form.company}">Company name</span>
+                    <input type="text" name="companyName" required maxlength="160" autocomplete="organization" th:placeholder="#{landing.form.company_placeholder}" placeholder="Jane Smith">
+                </label>
+                <label class="lp-field">
+                    <span th:text="#{landing.form.email}">Email</span>
+                    <input type="email" name="email" required maxlength="254" autocomplete="email" th:placeholder="#{landing.form.email_placeholder}" placeholder="jane@mail.com">
+                </label>
+                <!-- Left empty by people; bots fill it in. -->
+                <label class="lp-hp" aria-hidden="true">Website <input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+                <button type="submit" class="lp-send" th:text="#{landing.form.send}">Send</button>
+                <p class="lp-form-status" role="status" aria-live="polite"></p>
+            </form>
+        </div>
+    </section>
+</main>
+
+<footer class="lp-footer">
+    <img class="lp-footer-bg" src="/assets/landing/footer.jpg" alt="" loading="lazy">
+    <div class="lp-footer-inner" data-appear="up">
+        <div>
+            <img src="/assets/landing/wordmark.svg" alt="ResonaAI" width="176" height="36">
+            <p class="lp-gradient-text lp-footer-tagline" th:text="#{landing.footer.tagline}">ResonaAI - design the atmosphere, drive performance.</p>
+        </div>
+        <div class="lp-footer-right">
+            <p th:text="#{landing.footer.rights}">© 2026 Resona AI. All rights reserved</p>
+            <p class="lp-footer-links"><a href="/terms" th:text="#{common.terms}">Terms</a> · <a href="/privacy" th:text="#{common.privacy}">Privacy</a></p>
+        </div>
+    </div>
+</footer>
+
+<script th:src="@{/js/landing.js}" defer></script>
+</body>
+</html>

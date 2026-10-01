@@ -52,7 +52,7 @@ public class WebSecurityConfig implements WebMvcConfigurer {
         SpringSessionBackedSessionRegistry<? extends Session> sessionRegistry
     ) {
         http
-            .csrf(csrf -> csrf.ignoringRequestMatchers("/ws-player/**"))
+            .csrf(csrf -> csrf.ignoringRequestMatchers("/ws-player/**", "/landing/request"))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                     "/auth/**",
@@ -66,6 +66,8 @@ public class WebSecurityConfig implements WebMvcConfigurer {
                     "/manifest.json",
                     "/terms",
                     "/privacy",
+                    "/landing",
+                    "/landing/request",
                     "/ws-player/**",
                     "/files/**"
                 ).permitAll()
