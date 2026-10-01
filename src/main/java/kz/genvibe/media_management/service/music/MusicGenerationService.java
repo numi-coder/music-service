@@ -51,13 +51,22 @@ public class MusicGenerationService {
     private final MusicGenerationJobRepository jobRepository;
     private final MusicRepository musicRepository;
     private final MusicPromptBuilder promptBuilder;
-    private final MusicGenerator generator;
+    private final List<MusicGenerator> generators;
     private final AudioInspector audioInspector;
     private final MusicTrackStorage trackStorage;
     private final MusicGenerationProps props;
 
-    /** What one track costs at the provider's price per minute. */
+    /** The provider chosen in the settings. */
+    MusicGenerator generator() {
+        return generators.stream()
+            .filter(generator -> generator.name().equalsIgnoreCase(props.getProvider()))
+            .findFirst()
+            .orElseThrow(() -> new IllegalStateException("Unknown music provider: " + props.getProvider()));
+    }
+
+    /** What one track costs with the chosen provider. */
     public BigDecimal costPerTrack() {
+        if (StabilityMusicGenerator.NAME.equalsIgnoreCase(props.getProvider())) return props.getStabilityPricePerTrackUsd();
         return props.getPricePerMinuteUsd()
             .multiply(BigDecimal.valueOf(props.getTrackSeconds()))
             .divide(BigDecimal.valueOf(60), 4, RoundingMode.HALF_UP);
@@ -89,7 +98,7 @@ public class MusicGenerationService {
             jobs.add(new MusicGenerationJob(
                 atmosphere, moods, variation,
                 promptBuilder.build(atmosphere, moods, variation),
-                props.getTrackSeconds(), generator.name(), requestedBy
+                props.getTrackSeconds(), generator().name(), requestedBy
             ));
         }
         return jobRepository.saveAll(jobs);
@@ -119,7 +128,11 @@ public class MusicGenerationService {
         jobRepository.save(job);
 
         try {
-            var audio = generator.generate(job.getPrompt(), job.getLengthSeconds());
+            var audio = generators.stream()
+                .filter(generator -> generator.name().equals(job.getProvider()))
+                .findFirst()
+                .orElseGet(this::generator)
+                .generate(job.getPrompt(), job.getLengthSeconds());
             // The provider has charged for this track from here on, whatever happens next.
             job.setCostUsd(job.getCostUsd().add(costPerTrack()));
 

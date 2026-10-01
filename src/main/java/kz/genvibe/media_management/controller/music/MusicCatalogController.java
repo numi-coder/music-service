@@ -45,6 +45,7 @@ public class MusicCatalogController {
         model.addAttribute("budget", props.getMonthlyBudgetUsd());
         model.addAttribute("costPerTrack", musicGenerationService.costPerTrack());
         model.addAttribute("trackSeconds", props.getTrackSeconds());
+        model.addAttribute("provider", props.getProvider());
         model.addAttribute("queued", jobRepository.countByStatus(MusicJobStatus.QUEUED));
         model.addAttribute("inReview", jobRepository.countByStatus(MusicJobStatus.IN_REVIEW));
         model.addAttribute("approved", jobRepository.countByStatus(MusicJobStatus.APPROVED));

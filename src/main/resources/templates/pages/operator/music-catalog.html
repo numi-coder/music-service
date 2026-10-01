@@ -35,7 +35,7 @@
         <div class="stat">
             <span class="stat-label">Cost per track</span>
             <span class="stat-value">$<span th:text="${#numbers.formatDecimal(costPerTrack, 1, 2, 'POINT')}">0.45</span></span>
-            <span class="muted"><span th:text="${trackSeconds}">180</span> seconds each</span>
+            <span class="muted"><span th:text="${trackSeconds}">180</span> seconds each · <span th:text="${provider}">stability</span></span>
         </div>
         <div class="stat">
             <span class="stat-label">Queue</span>

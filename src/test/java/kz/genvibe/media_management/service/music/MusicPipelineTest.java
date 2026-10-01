@@ -52,7 +52,8 @@ class MusicPipelineTest {
 
     @BeforeEach
     void setUp() {
-        service = new MusicGenerationService(jobRepository, musicRepository, promptBuilder, generator, audioInspector, trackStorage, props);
+        props.setProvider("elevenlabs");
+        service = new MusicGenerationService(jobRepository, musicRepository, promptBuilder, List.of(generator), audioInspector, trackStorage, props);
         when(generator.name()).thenReturn("elevenlabs");
         when(jobRepository.sumCostSince(any())).thenReturn(BigDecimal.ZERO);
         when(jobRepository.findAllByStatusAndStartedAtBefore(any(), any())).thenReturn(List.of());
@@ -227,6 +228,18 @@ class MusicPipelineTest {
         assertEquals(MusicJobStatus.APPROVED, job.getStatus());
 
         assertThrows(IllegalStateException.class, () -> service.reject(7L), "already reviewed");
+    }
+
+    @Test
+    @DisplayName("Stable Audio: flat $0.20 a track, and no key means a clear failure, not retries")
+    void stableAudio() {
+        props.setProvider("stability");
+        assertEquals(0, new BigDecimal("0.20").compareTo(service.costPerTrack()));
+
+        var stability = new StabilityMusicGenerator(props, org.springframework.web.client.RestClient.builder());
+        var e = assertThrows(MusicGenerationException.class, () -> stability.generate("calm piano", 180));
+        assertFalse(e.isWorthRetrying());
+        assertTrue(e.getMessage().contains("stability-api-key"));
     }
 
     private MusicGenerationJob queuedJob() {

@@ -24,13 +24,25 @@ public class MusicGenerationProps {
     /** Emails of the people allowed to open the music catalog page. */
     private List<String> operatorEmails = new ArrayList<>();
 
+    /** Which provider makes the music: "stability" (Stable Audio) or "elevenlabs". */
+    private String provider = "stability";
+
+    /** Stability AI API key; set only on the server. */
+    private String stabilityApiKey = "";
+
+    /** Stable Audio model. */
+    private String stabilityModel = "stable-audio-2.5";
+
+    /** Stable Audio charges a flat price per track (20 credits). */
+    private BigDecimal stabilityPricePerTrackUsd = new BigDecimal("0.20");
+
     /** Model name sent to ElevenLabs. */
     private String elevenlabsModel = "music_v1";
 
     /** Length of each generated track. */
     private int trackSeconds = 180;
 
-    /** What the provider charges per generated minute. */
+    /** What ElevenLabs charges per generated minute. */
     private BigDecimal pricePerMinuteUsd = new BigDecimal("0.15");
 
     /** Generation stops for the month once this much has been spent. */
